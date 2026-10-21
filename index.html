@@ -1,0 +1,2486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Front Pay – prototype (fictional data)</title>
+<style>
+:root{
+  color-scheme: light;
+  /* ---- Blue EHR design tokens (blue-ehr.css) ---- */
+  --primary:#1A4F85; --primary-dk:#0d3a6b; --primary-lt:#e8f0fb; --primary-mid:#2563a8;
+  --secondary:#1B2A45; --secondary-lt:#2a3b5c;
+  --surface:#ffffff; --surface-alt:#f5f6fa; --surface-bar:#fafbfd; --surface-row-hover:#fafbff; --surface-sunken:#f7f9fc;
+  --thead:#eeeeee; --section-head:#eef2f9; --section-head-border:#dce6f5; --muted-bg:#f0f0f0; --highlight:#fff2a8;
+  --line:#e0e0e0; --line-dk:#c8c8c8; --line-info:#bcd6f0; --line-warn:#fcd34d; --line-success:#b9dcbb; --line-error:#f4c1c1;
+  --text-1:#000000; --text-2:#808080; --text-3:#aaaaaa; --text-input:#202020;
+  --ok:#2e7d32; --ok-soft:#e8f5e9;
+  --warn:#b45309; --warn-soft:#fff8e1; --warn-dk:#78350f; --warn-dot:#e8a000;
+  --err:#c62828; --err-soft:#ffebee; --err-dk:#a91f1f;
+  --notify:#e53935;
+  --r-sm:4px; --r-md:6px; --r-lg:10px;
+  --shadow-card:0 1px 3px rgba(0,0,0,.08); --shadow-nav:0 2px 8px rgba(0,0,0,.25); --shadow-dropdown:0 4px 14px rgba(0,0,0,.12);
+  --shadow-popover:0 6px 20px rgba(0,0,0,.18); --shadow-modal:0 12px 40px rgba(0,0,0,.25);
+  --shadow-focus:0 0 0 2px var(--primary-lt); --shadow-focus-error:0 0 0 2px var(--err-soft);
+  --font:'Inter', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --caret-10:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  --search-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23999' stroke-width='2.4' d='M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15zm5.3-2.2L21 21'/%3E%3C/svg%3E");
+  /* ---- prototype names mapped to Blue EHR tokens ---- */
+  --nav:var(--secondary); --nav-ink:#ffffff; --band:var(--surface); --band-ink:var(--text-1);
+  --bg:var(--surface-alt); --surface-2:var(--surface-sunken); --surface-3:var(--surface-alt);
+  --ink:var(--text-1); --ink-2:var(--text-2); --ink-3:var(--text-2);
+  --line-2:var(--line);
+  --accent:var(--primary); --accent-ink:#ffffff; --accent-soft:var(--primary-lt);
+  --sel:var(--primary-lt); --sel-bar:var(--primary); --grp:var(--section-head);
+  --exp-ink:var(--warn-dk); --exp-bg:var(--warn-soft); --exp-line:var(--line-warn);
+  --focus:var(--primary);
+}
+/* Blue EHR has no dark theme yet. These values are derived from its hues so the prototype stays readable in dark mode. */
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --primary:#6fa6e6; --primary-dk:#9cc3f0; --primary-lt:#1b3150; --primary-mid:#4f8fd9;
+    --secondary:#0e1726; --secondary-lt:#1c2a40;
+    --surface:#161d28; --surface-alt:#0f141c; --surface-bar:#1a2230; --surface-row-hover:#1a2434; --surface-sunken:#1b2431;
+    --thead:#222b38; --section-head:#1d2a3c; --section-head-border:#2b3c55; --muted-bg:#262f3c; --highlight:#5a4d12;
+    --line:#2b3544; --line-dk:#3b4758; --line-info:#2f4b6e; --line-warn:#7a5a14; --line-success:#2d5a33; --line-error:#6b2a2a;
+    --text-1:#e9eef4; --text-2:#9aa6b4; --text-3:#6f7b8a; --text-input:#e9eef4;
+    --ok:#7fd18a; --ok-soft:#14301a; --warn:#f2b45c; --warn-soft:#33260f; --warn-dk:#f6c983;
+    --err:#ff8a80; --err-soft:#3a1716; --err-dk:#ffb3ab;
+    --accent-ink:#0b1626;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--font);font-size:14px;line-height:1.4;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.muted{color:var(--ink-3)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+[hidden]{display:none !important}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface);cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--surface-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.btn.small{height:26px;padding:0 8px;font-size:13px}
+.btn.link{border:none;background:none;color:var(--accent);padding:0 4px;height:auto;text-decoration:underline}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid transparent;border-radius:4px;background:none;cursor:pointer;color:var(--ink-2);padding:0}
+.icon-btn:hover{background:var(--surface-3);border-color:var(--line)}
+.icon-btn[aria-disabled="true"]{opacity:.4}
+.icon-btn svg,.btn svg{width:16px;height:16px;flex:none}
+
+/* app bar */
+.appbar{display:flex;align-items:center;gap:16px;height:44px;padding:0 16px;background:var(--nav);color:var(--nav-ink)}
+.appbar .brand{font-weight:700;letter-spacing:.2px}
+.appbar .proto{font-size:12px;padding:2px 8px;border:1px solid rgba(255,255,255,.4);border-radius:10px}
+.appbar .spacer{flex:1}
+.appbar .user{font-size:13px;opacity:.9}
+
+/* patient band */
+.band{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;padding:10px 16px;background:var(--band);color:var(--band-ink);font-size:14px}
+.band b{font-weight:700}
+.band .spacer{flex:1}
+.band .back{background:rgba(255,255,255,.95);color:#0d2c54;border:none}
+
+main{padding:0 12px 24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-top:none}
+
+/* payment area */
+.pay-head{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.pay-head h2{font-size:15px;margin:0;font-weight:600}
+.pay-head .collapsed-sum{flex:1;color:var(--ink-2);font-size:13px}
+.pay-body{display:grid;grid-template-columns:minmax(560px,1.3fr) minmax(380px,1fr);gap:8px 32px;padding:10px 12px 12px}
+.field-row{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.field-row > .lab{width:120px;color:var(--ink-3);padding-top:4px;flex:none}
+.radios{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.radio{display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0}
+.radio input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+.radio.dis{color:var(--ink-3);cursor:not-allowed}
+.radio-wrap{display:flex;flex-direction:column}
+.hint{font-size:12px;color:var(--ink-3)}
+.pay-right .f{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.pay-right label{color:var(--ink-2)}
+.pay-right input{height:34px;border:1px solid var(--line);border-radius:4px;padding:0 10px;background:var(--surface);width:100%}
+.amount-input{font-size:18px !important;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.amount-wrap{position:relative}
+.amount-wrap .cur{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-weight:600}
+.amount-wrap input{padding-left:24px}
+.sel-summary{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:8px 10px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:4px}
+.sel-summary .k{color:var(--ink-3);font-size:12px;display:block}
+.sel-summary .v{font-weight:600;font-variant-numeric:tabular-nums}
+.sel-summary .grow{flex:1}
+.review{grid-column:1 / -1;border:1px solid var(--line-2);border-radius:4px;max-height:260px;overflow:auto}
+.review table{width:100%;border-collapse:collapse;font-size:13px}
+.review th,.review td{padding:4px 8px;border-bottom:1px solid var(--line-2);text-align:left}
+.review .num{text-align:right}
+.review th{background:var(--surface-2);font-weight:500;position:sticky;top:0}
+.review .enc td{background:var(--surface-3);font-weight:500}
+.msgs{grid-column:1 / -1}
+.msg{padding:8px 12px;border-radius:4px;margin-top:6px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.msg.err{background:var(--err-soft);color:var(--err);border:1px solid color-mix(in srgb,var(--err) 35%,transparent)}
+.msg.ok{background:var(--ok-soft);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 35%,transparent)}
+.msg.warn{background:var(--warn-soft);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent)}
+.msg ul{margin:0;padding-left:18px}
+.msg .grow{flex:1}
+
+/* toolbar */
+.toolbar{padding:8px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;background:var(--surface-2)}
+.tb-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.tb-row .spacer{flex:1}
+.split{display:inline-flex}
+.split .btn:first-child{border-radius:4px 0 0 4px}
+.split .btn:last-child{border-radius:0 4px 4px 0;border-left:none;padding:0 8px}
+.menu-wrap{position:relative}
+.menu{position:absolute;right:0;top:36px;z-index:30;min-width:270px;background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:4px 0}
+.menu button{display:block;width:100%;text-align:left;padding:8px 14px;border:none;background:none;cursor:pointer}
+.menu button:hover,.menu button:focus-visible{background:var(--accent-soft)}
+.ctl{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.ctl > span:first-child{color:var(--ink-3)}
+.ctl select,.ctl input[type=date],.ctl input[type=search]{height:30px;border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:0 6px}
+.ctl input[type=search]{width:250px}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.chk input{width:15px;height:15px;accent-color:var(--accent);margin:0}
+details.ms{position:relative}
+details.ms summary{list-style:none;height:30px;display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:0 8px;cursor:pointer;font-size:13px;min-width:170px}
+details.ms summary::-webkit-details-marker{display:none}
+details.ms summary::after{content:"▾";margin-left:auto;color:var(--ink-3)}
+details.ms .ms-pop{position:absolute;z-index:25;top:34px;left:0;background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:6px 10px;display:flex;flex-direction:column;gap:6px;min-width:210px}
+.bal-line{font-size:13px;color:var(--ink-2)}
+.bal-line b{color:var(--ink);font-variant-numeric:tabular-nums}
+.bal-line .sep{margin:0 8px;color:var(--line)}
+
+/* advanced filters, sort, column manager, prepayment */
+.badge{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--accent-ink);font-size:11px;text-align:center;margin-left:6px;font-weight:600}
+.adv-btn[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.adv{display:flex;flex-wrap:wrap;gap:10px 32px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.adv-f{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.adv-lab{font-size:13px;color:var(--ink-3)}
+.adv-checks{display:flex;flex-wrap:wrap;gap:6px 14px}
+.sort-btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:4px;border-radius:3px;padding:1px 2px}
+.sort-btn:hover{color:var(--accent)}
+.sort-btn:focus-visible{outline:3px solid var(--focus)}
+.sort-btn .si{color:var(--ink-3);font-size:10px;width:10px;text-align:center}
+th[aria-sort] .sort-btn,th[aria-sort] .sort-btn .si{color:var(--accent);font-weight:600}
+.fp thead tr.h1 th.cm-cell{padding:0;text-align:center;overflow:visible}
+.cm-btn{color:var(--ink-2)}
+.cm-btn[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.colmgr{position:fixed;z-index:50;width:300px;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:10px 0 8px;color:var(--ink)}
+.colmgr h3{font-size:14px;margin:0 14px 2px}
+.colmgr .hint{margin:0 14px 8px;display:block}
+.colmgr ul{list-style:none;margin:0;padding:0}
+.colmgr li{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-top:1px solid var(--line-2);background:var(--surface)}
+.colmgr li.drag-over{box-shadow:inset 0 2px 0 var(--accent)}
+.colmgr li.dragging{opacity:.45}
+.colmgr .grip{cursor:grab;color:var(--ink-3);width:14px;text-align:center;user-select:none}
+.colmgr label{flex:1;display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+.colmgr label input{accent-color:var(--accent)}
+.colmgr .lock{font-size:11px;color:var(--ink-3)}
+.colmgr .icon-btn[disabled]{opacity:.3;cursor:default}
+.colmgr .pinned{color:var(--ink-3);font-size:12.5px;padding:6px 14px 6px 30px;border-top:1px solid var(--line-2)}
+.colmgr .cm-f{display:flex;justify-content:flex-end;padding:8px 14px 0;border-top:1px solid var(--line-2)}
+.code-meta{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px}
+.add-row .add-inline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.add-row .add-inline select{width:auto;max-width:340px}
+.add-row .add-inline input{width:64px}
+.pp{padding:12px;border-top:1px solid var(--line)}
+.pp-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.pp-head h2{font-size:16px;margin:0}
+.pp-sum{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.pp-card{flex:1 1 190px;border:1px solid var(--line);border-radius:4px;padding:8px 12px;background:var(--surface-2)}
+.pp-card .k{font-size:12px;color:var(--ink-3);display:block}
+.pp-card .v{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.pp-card .s{font-size:12px;color:var(--ink-2)}
+.pp-card.now{border-color:var(--accent);background:var(--accent-soft)}
+.pp-more{display:flex;justify-content:center;gap:10px;align-items:center;padding:10px}
+.ht td.plus{color:var(--ok);font-weight:600}
+.ht td.minus{color:var(--ink)}
+
+/* app bar user switch (demo) */
+.appbar .user select{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:4px;height:28px;padding:0 6px;margin-left:6px}
+.appbar .user option{color:#111;background:#fff}
+
+/* transaction history: month list + details */
+.hist-range{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hist-range input{height:30px;border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:0 6px}
+.hb{display:grid;grid-template-columns:270px minmax(0,1fr);gap:12px;padding:12px 0}
+.hm-list{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface);max-height:calc(100vh - 210px);overflow:auto;align-self:start}
+.hm-cap{padding:8px 12px;font-size:12px;color:var(--ink-3);border-bottom:1px solid var(--line)}
+.hm{all:unset;display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:10px 12px;border-bottom:1px solid var(--line-2);cursor:pointer}
+.hm:hover{background:var(--surface-3)}
+.hm.on{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.hm:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.hm-l{font-weight:600}
+.hm-v{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.hm-s{grid-column:1/-1;font-size:12px;color:var(--ink-3)}
+.hd{background:var(--surface);border:1px solid var(--line);padding:12px 14px;min-width:0}
+.hd h3{margin:0 0 10px;font-size:16px}
+.hd .pp-card{flex:1 1 130px;padding:8px 10px}
+.hd .pp-card .v{font-size:17px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.chip{all:unset;cursor:pointer;border:1px solid var(--line);border-radius:14px;padding:3px 11px;font-size:13px;background:var(--surface)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip:focus-visible{outline:3px solid var(--focus)}
+.ht tr.encl td{background:var(--surface-3);font-weight:500}
+.ht tr.codeln td{font-size:12px;color:var(--ink-2)}
+.ht tr.codeln td:first-child{padding-left:26px}
+.tag.lock{border-color:var(--ok);color:var(--ok)}
+@media (max-width:900px){.hb{grid-template-columns:1fr}}
+
+/* cash sessions / day close */
+.cash{padding:12px 0;display:flex;flex-direction:column;gap:12px}
+.cash .card{background:var(--surface);border:1px solid var(--line);padding:12px 14px}
+.cash h3{margin:0 0 4px;font-size:15px}
+.cash .row{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
+.count-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:12px 0}
+.count-grid label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
+.count-grid input{height:36px;border:1px solid var(--line);border-radius:4px;padding:0 10px;text-align:right;font-weight:600;font-size:15px;background:var(--surface);font-variant-numeric:tabular-nums}
+.cash select,.cash textarea{border:1px solid var(--line);border-radius:4px;background:var(--surface);padding:6px 8px}
+.cash textarea{width:100%;min-height:54px;resize:vertical}
+.var-neg{color:var(--err);font-weight:600}
+.var-pos{color:var(--warn);font-weight:600}
+.var-ok{color:var(--ok);font-weight:600}
+.stat{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
+.stat.open{border-color:var(--accent);color:var(--accent)}
+.stat.submitted{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.stat.approved{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.stat.returned{border-color:var(--err);color:var(--err);background:var(--err-soft)}
+.ht tr.picked td{background:var(--sel)}
+
+/* selection bar */
+.selbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:8px 12px;border-top:1px solid var(--line);background:var(--surface)}
+.selbar .txt{font-size:13px}
+.selbar .txt b{font-variant-numeric:tabular-nums}
+.selbar .spacer{flex:1}
+.scope{font-size:12.5px;color:var(--ink-2);padding:0 12px 8px;background:var(--surface);display:flex;flex-wrap:wrap;gap:4px 22px}
+.scope b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* table */
+.table-wrap{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;border:1px solid var(--line);border-top:none;background:var(--surface)}
+table.fp{border-collapse:separate;border-spacing:0;width:100%;min-width:1350px;table-layout:fixed;font-size:13px}
+.fp th,.fp td{padding:5px 6px;border-bottom:1px solid var(--line-2);vertical-align:middle;overflow:hidden}
+.fp thead th{position:sticky;background:var(--surface-2);font-weight:500;color:var(--ink-2);z-index:3;text-align:left}
+.fp thead tr.h1 th{top:0;height:30px;text-align:center;border-bottom:1px solid var(--line);font-weight:500;color:var(--ink)}
+.fp thead tr.h2 th{top:30px;border-bottom:2px solid var(--line)}
+.fp thead th.num{text-align:right}
+.fp thead .cg{border-left:1px solid var(--line)}
+.fp td.cg{border-left:1px solid var(--line-2)}
+.th-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--ink-3);font-size:10px;color:var(--ink-3);margin-left:4px;cursor:help;vertical-align:1px}
+tr.grp th,tr.grp td{background:var(--grp);text-align:left;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line)}
+tr.grp th{position:sticky;left:0}
+tr.grp td.gchk{padding:7px 0;text-align:center}
+tr.grp .gpart{font-weight:600;color:#8a5a00;margin-left:8px}
+tr.grp .gmeta{font-weight:400;color:var(--ink-2);margin-left:10px}
+tr.enc-row td{background:var(--surface);border-top:1px solid var(--line)}
+tr.enc-row.is-sel td{background:var(--sel)}
+tr.enc-row.is-sel td:first-child{box-shadow:inset 4px 0 0 var(--sel-bar)}
+tr.enc-row.is-part td:first-child{box-shadow:inset 4px 0 0 repeating-linear-gradient(var(--sel-bar),var(--sel-bar) 4px,transparent 4px,transparent 8px)}
+tr.code-head td{background:var(--surface-3);color:var(--ink-2);font-style:italic;font-size:12.5px;padding-top:4px;padding-bottom:4px}
+tr.code-row td{background:var(--surface-2)}
+tr.code-row.is-sel td{background:var(--sel)}
+tr.code-row td.c-a{padding-left:16px}
+tr.note-row td{background:var(--surface-2);font-size:12.5px;color:var(--ink-2);padding-left:16px}
+tr.add-row td{background:var(--surface-2);border-bottom:2px solid var(--line)}
+.enc-ref{display:flex;align-items:center;flex-wrap:wrap;gap:0 4px}
+.enc-ref b{white-space:nowrap}
+.enc-ref b{font-weight:600}
+.sub{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.code-l1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.code-desc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp{width:22px;height:22px;border:1px solid var(--line);border-radius:3px;background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:6px;vertical-align:middle;font-size:12px;line-height:1}
+.dos{white-space:nowrap}
+.fp input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);margin:0;cursor:pointer}
+.fp input[type=checkbox]:disabled{cursor:not-allowed}
+.pay-in{width:100%;height:28px;border:1px solid var(--line);border-radius:3px;padding:0 6px;text-align:right;background:var(--surface);font-variant-numeric:tabular-nums}
+.pay-in:disabled{background:transparent;border-style:dashed;color:var(--ink-3)}
+.pay-in[aria-invalid="true"]{border-color:var(--err);box-shadow:0 0 0 1px var(--err)}
+.cell-err{color:var(--err);font-size:11.5px;white-space:normal;line-height:1.2;margin-top:2px}
+.cell-sub{font-size:11.5px;color:var(--ink-3);white-space:nowrap;text-align:right;margin-top:1px}
+.exp-line{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:4px;font-size:11.5px;color:var(--exp-ink);margin-top:2px}
+.tag{display:inline-block;font-size:10.5px;line-height:15px;padding:0 5px;border-radius:3px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface);font-style:normal;font-weight:500;white-space:nowrap}
+.tag.expd{border:1px dashed var(--exp-line);background:var(--exp-bg);color:var(--exp-ink)}
+.tag.new{border-color:var(--accent);color:var(--accent)}
+.tag.so{border-color:var(--ink-3)}
+.stock{display:inline-block;min-width:38px;text-align:center;padding:1px 6px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.qty-in{width:56px;height:26px;border:1px solid var(--line);border-radius:3px;padding:0 4px;text-align:right;background:var(--surface)}
+.add-row select,.add-row input{height:26px;border:1px solid var(--line);border-radius:3px;background:var(--surface);font-size:12.5px;width:100%}
+.add-row .stack{display:flex;flex-direction:column;gap:3px}
+.legacy-ic{color:#2e9d4a}
+tfoot td{position:sticky;bottom:0;background:var(--surface-3);font-weight:600;border-top:2px solid var(--line);z-index:2}
+tfoot tr.foot-note td{font-weight:400;font-size:12px;color:var(--ink-2);bottom:auto;position:static}
+.empty{padding:40px 20px !important;text-align:center;color:var(--ink-2)}
+.empty p{margin:0 0 10px}
+
+/* pager */
+.pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-top:none}
+.pager .pages{display:flex;gap:4px}
+.pager .pages .btn[aria-current="page"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pager .spacer{flex:1}
+
+/* demo */
+.demo{margin-top:18px;border:1px dashed var(--ink-3);border-radius:4px;background:var(--surface);padding:8px 12px}
+.demo summary{cursor:pointer;font-weight:500;color:var(--ink-2)}
+.demo .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.demo .notes{font-size:13px;color:var(--ink-2);max-width:980px}
+.demo .notes h3{font-size:14px;margin:14px 0 4px;color:var(--ink)}
+.demo .notes li{margin-bottom:3px}
+
+/* sticky compact bar */
+.sticky-bar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:7px 16px;background:var(--nav);color:#fff;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.sticky-bar b{font-variant-numeric:tabular-nums}
+.sticky-bar .spacer{flex:1}
+.sticky-bar .btn{height:28px}
+.sticky-bar .btn:not(.primary){background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+
+/* history */
+.hist-head{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-top:none;flex-wrap:wrap}
+.hist-head h2{margin:0;font-size:17px}
+.hist-head .spacer{flex:1}
+table.ht{width:100%;border-collapse:collapse;background:var(--surface);font-size:13px;min-width:980px}
+.ht th,.ht td{padding:7px 10px;border-bottom:1px solid var(--line-2);text-align:left}
+.ht th.num,.ht td.num{text-align:right}
+.ht thead th{background:var(--surface-2);font-weight:500;color:var(--ink-2);position:sticky;top:0}
+.ht tr.alloc > td{background:var(--surface-2);padding:0 10px 10px 46px}
+.ht .inner{width:100%;border-collapse:collapse;font-size:12.5px}
+.ht .inner th,.ht .inner td{padding:4px 8px;border-bottom:1px solid var(--line-2)}
+
+/* dialogs */
+dialog{border:1px solid var(--line);border-radius:6px;padding:0;background:var(--surface);color:var(--ink);max-width:min(560px,94vw);box-shadow:0 18px 50px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,25,45,.45)}
+.dlg-h{padding:14px 18px 6px;font-size:16px;font-weight:600;margin:0}
+.dlg-b{padding:4px 18px 10px;color:var(--ink-2)}
+.dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:10px 18px 14px;border-top:1px solid var(--line-2)}
+.form-grid{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
+.form-grid input,.form-grid select{height:32px;border:1px solid var(--line);border-radius:4px;padding:0 8px;background:var(--surface)}
+dialog.wide{max-width:min(900px,96vw);width:900px}
+.preview{max-height:62vh;overflow:auto;border:1px solid var(--line);margin:4px 18px;background:#fff;color:#111}
+
+/* printable documents */
+.doc{padding:24px 28px;font-size:13px;color:#111;background:#fff;font-family:var(--font)}
+.doc h1{font-size:19px;margin:0 0 2px}
+.doc .meta{display:grid;grid-template-columns:1fr 1fr;gap:3px 30px;margin:12px 0 14px}
+.doc table{width:100%;border-collapse:collapse;margin-top:6px}
+.doc th,.doc td{border-bottom:1px solid #ccc;padding:4px 6px;text-align:left;vertical-align:top}
+.doc th.num,.doc td.num{text-align:right}
+.doc .tot td{font-weight:700;border-top:2px solid #333}
+.doc .note{margin-top:14px;font-size:12px;color:#444}
+.doc .encl td{background:#f1f4f7;font-weight:600}
+.doc .expd{border:1px dashed #b07d1d;padding:0 4px;border-radius:3px;font-size:11px}
+
+/* toasts */
+.toasts{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-direction:column;gap:8px;max-width:440px}
+.toast{background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:5px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:13px;display:flex;gap:10px;align-items:center}
+.toast button{background:none;border:1px solid currentColor;color:inherit;border-radius:3px;padding:2px 8px;cursor:pointer}
+
+#printArea{display:none}
+@media print{
+  body.printing > *:not(#printArea){display:none !important}
+  body.printing #printArea{display:block}
+  body{background:#fff}
+}
+@media (max-width:1100px){
+  .pay-body{grid-template-columns:1fr}
+  .ctl input[type=search]{width:190px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .toast{animation:tin .18s ease-out}
+  @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+
+/* =====================================================================
+   BLUE EHR DESIGN SYSTEM LAYER
+   Component styles from blue-ehr-ds (React + Tailwind), applied to this
+   plain-HTML prototype. Values match the library's class definitions.
+   ===================================================================== */
+body{font-size:13px;line-height:normal;color:var(--text-1);background:var(--surface-alt)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+input::placeholder,textarea::placeholder{color:var(--text-3)}
+.hint{font-size:11.5px;color:var(--text-2)}
+.muted{color:var(--text-2)}
+
+/* Button — primary / secondary / ghost (default) / link; md 34px, sm 30px */
+.btn{height:34px;padding:0 16px;gap:6px;border:1px solid var(--line);border-radius:var(--r-md);background:transparent;color:var(--text-2);font-size:13px;font-weight:500;transition:background-color .15s,border-color .15s,color .15s}
+.btn:hover{background:var(--surface-alt)}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--primary-lt),0 0 0 4px var(--primary)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--text-inverse,#fff)}
+.btn.primary:hover{background:var(--primary-dk);border-color:var(--primary-dk);filter:none}
+.btn.secondary{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}
+.btn.secondary:hover{background:var(--primary-lt)}
+.btn.small{height:30px;padding:0 12px;font-size:12px;border-radius:var(--r-md)}
+.btn.link{height:auto;padding:0;border:none;background:none;color:var(--primary);font-size:inherit;text-decoration:underline}
+.btn.link:hover{color:var(--primary-dk);background:none}
+.btn[disabled],.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.btn svg{width:14px;height:14px}
+/* IconButton — 26px, bordered; danger hover for delete */
+.icon-btn{width:26px;height:26px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--text-2);transition:all .15s}
+.icon-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-lt)}
+.icon-btn[data-act^="del"]:hover{border-color:var(--err);color:var(--err);background:var(--err-soft)}
+.icon-btn[aria-disabled="true"],.icon-btn[disabled]{opacity:.4}
+.icon-btn[aria-disabled="true"]:hover{border-color:var(--line);color:var(--text-2);background:var(--surface)}
+.icon-btn svg{width:14px;height:14px}
+.legacy-ic{color:var(--ok)}
+.legacy-ic.icon-btn{border-color:transparent;background:transparent;width:22px;height:22px}
+
+/* TopNav — secondary, 48px */
+.appbar{height:48px;gap:14px;background:var(--secondary);box-shadow:var(--shadow-nav);position:relative;z-index:100}
+.appbar .brand{font-size:15px;font-weight:700;letter-spacing:0}
+.appbar > span:nth-child(2){font-size:13px;font-weight:500;color:rgba(255,255,255,.85)}
+.appbar .proto{font-size:10px;font-weight:500;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:2px 9px}
+.appbar .user{font-size:12px;font-weight:500;color:rgba(255,255,255,.85);opacity:1}
+.appbar .user select{height:28px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:var(--r-sm);font-size:12px;padding:0 8px}
+
+/* PatientBanner — white card, 10px radius */
+.band{margin:12px 16px 0;background:var(--surface);color:var(--text-1);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card);padding:12px 16px;font-size:12px;gap:8px 16px}
+.band b{font-weight:600}
+.pbanner{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px}
+.pb-id{min-width:180px}
+.pb-k,.pb-fields dt{font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px}
+.pb-name{font-size:15px;font-weight:600;margin-top:1px}
+.pb-meta{font-size:11px;color:var(--text-2);margin-top:2px}
+.pb-fields{display:flex;gap:12px 20px;flex-wrap:wrap;border-left:1px solid var(--line);padding-left:16px;margin:0}
+.pb-fields dd{margin:2px 0 0;font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+.pb-act{margin-left:auto}
+
+main{padding:12px 16px 24px}
+
+/* Card — payment entry */
+#paySection{border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card);overflow:hidden}
+.pay-head{padding:10px 16px;border-bottom:1px solid var(--line)}
+.pay-head h2{font-size:13px;font-weight:600}
+.pay-head .collapsed-sum{font-size:12px;color:var(--text-2)}
+.pay-body{padding:14px 16px 16px}
+.field-row > .lab{width:110px;padding-top:2px;font-size:11px;font-weight:500;color:var(--text-2)}
+.radios{gap:10px 16px}
+.radio{gap:5px;font-size:12px;color:var(--text-1);padding:2px 0}
+.radio input{width:13px;height:13px;accent-color:var(--primary)}
+.radio.dis{color:var(--text-3)}
+.pay-right .f{grid-template-columns:90px 1fr}
+.pay-right label{font-size:11px;font-weight:500;color:var(--text-2)}
+/* Field — md 32px, 4px radius, 12px; lg 34px for Amount */
+.pay-right input,.form-grid input,.form-grid select,.ctl select,.ctl input[type=date],.ctl input[type=search],
+.hist-range input,.cash select,.cash textarea,.count-grid input,.add-row select,.add-row input,.qty-in,.pay-in{
+  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--text-1);font-size:12px;outline:none;transition:border-color .15s,box-shadow .15s}
+.pay-right input:focus,.form-grid input:focus,.form-grid select:focus,.ctl select:focus,.ctl input:focus,.hist-range input:focus,
+.cash select:focus,.cash textarea:focus,.count-grid input:focus,.add-row select:focus,.add-row input:focus,.qty-in:focus,.pay-in:focus{border-color:var(--primary);box-shadow:var(--shadow-focus)}
+.pay-right input{height:32px;padding:0 9px}
+.amount-input{height:34px !important;border-radius:var(--r-md) !important;font-size:16px !important;font-weight:600}
+.pay-in[aria-invalid="true"],input[aria-invalid="true"]{border-color:var(--err) !important;box-shadow:var(--shadow-focus-error) !important}
+.form-grid input,.form-grid select{height:32px;padding:0 9px}
+.ctl select,.ctl input[type=date],.ctl input[type=search],.hist-range input{height:32px;padding:0 9px;color:var(--text-input)}
+/* Select caret */
+.ctl select,.form-grid select,.cash select,.add-row select,.pager select{appearance:none;-webkit-appearance:none;background-image:var(--caret-10);background-repeat:no-repeat;background-position:right 9px center;background-size:10px;padding-right:26px}
+/* SearchInput — lg, 6px radius, stronger border, search icon */
+.ctl input[type=search]{height:34px;border-radius:var(--r-md);border-color:var(--line-dk);padding-left:30px;background-image:var(--search-ic);background-repeat:no-repeat;background-position:10px center;background-size:14px}
+.ctl{font-size:12px;gap:6px}
+.ctl > span:first-child{font-size:11px;font-weight:500;color:var(--text-2)}
+/* Checkbox — 15px, 12px medium label */
+.chk{font-size:12px;font-weight:500;color:var(--text-1);gap:6px}
+.chk input,.fp input[type=checkbox]{width:15px;height:15px;accent-color:var(--primary)}
+
+/* StatGroup — selection summary */
+.sel-summary{background:var(--surface-alt);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px;gap:8px 20px}
+.sel-summary .k{font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.sel-summary .v{font-size:13px;font-weight:700}
+.review{border-color:var(--line);border-radius:var(--r-md)}
+.review table{font-size:12px}
+.review th{background:var(--thead);color:var(--text-2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.review th,.review td{padding:6px 10px;border-bottom:1px solid var(--line)}
+.review .enc td{background:var(--section-head)}
+
+/* Alert — info / warning / success / error */
+.msg{padding:9px 12px;border-radius:var(--r-sm);font-size:12px;line-height:1.45;gap:8px}
+.msg.err{background:var(--err-soft);color:var(--err);border:1px solid var(--line-error)}
+.msg.ok{background:var(--ok-soft);color:var(--ok);border:1px solid var(--line-success)}
+.msg.warn{background:var(--warn-soft);color:var(--warn-dk);border:1px solid var(--line-warn)}
+.msg b{font-weight:600}
+
+/* DataTable — toolbar + table + footer in one card */
+.toolbar{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-bottom:none;border-radius:var(--r-lg) var(--r-lg) 0 0;padding:10px 16px;gap:10px}
+.table-wrap{border:1px solid var(--line);border-top:1px solid var(--line);background:var(--surface)}
+.pager{background:var(--surface-bar);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--r-lg) var(--r-lg);padding:10px 16px;gap:10px;font-size:12px;color:var(--text-2);box-shadow:var(--shadow-card)}
+.pp{background:var(--surface);border:1px solid var(--line);border-radius:0 0 var(--r-lg) var(--r-lg);padding:16px}
+/* Pagination — 26px page buttons */
+.pager .btn{height:26px;min-width:26px;padding:0 7px;border-radius:var(--r-sm);font-size:12px;background:var(--surface);color:var(--text-2)}
+.pager .btn:hover:not([disabled]){border-color:var(--primary);color:var(--primary);background:var(--surface)}
+.pager .pages .btn[aria-current="page"]{background:var(--primary);border-color:var(--primary);color:#fff}
+.pager select{height:28px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:12px;background-color:var(--surface);padding:0 24px 0 8px}
+/* Advanced filters panel */
+.adv{background:var(--surface-alt);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px}
+.adv-lab{font-size:11px;font-weight:500;color:var(--text-2)}
+.adv-btn[aria-expanded="true"]{background:var(--primary-lt);border-color:var(--line-info);color:var(--primary)}
+.badge{background:var(--primary);color:#fff;font-size:10px;font-weight:600;height:16px;line-height:16px;min-width:16px;padding:0 5px;border-radius:20px}
+
+/* Table — 10px uppercase heads on #eee, 12px rows, primary-lt hover/selection */
+table.fp{font-size:12px}
+.fp th,.fp td{padding:6px 10px;border-bottom:1px solid var(--line)}
+.fp thead th{background:var(--thead);color:var(--text-2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.fp thead tr.h1 th{height:28px;color:var(--text-2);border-bottom:1px solid var(--line)}
+.fp thead tr.h2 th{top:28px;border-bottom:1px solid var(--line-dk)}
+.fp thead .cg{border-left:1px solid var(--line-dk)}
+.fp td.cg{border-left:1px solid var(--line)}
+.sort-btn{text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.sort-btn:hover,.sort-btn:focus-visible{color:var(--primary)}
+.sort-btn .si{font-size:9px;color:var(--text-3)}
+th[aria-sort] .sort-btn,th[aria-sort] .sort-btn .si{color:var(--primary)}
+tr.grp th,tr.grp td{background:var(--section-head);border-bottom:1px solid var(--section-head-border);font-size:12px;font-weight:600;padding:7px 10px}
+tr.grp .gmeta{font-size:11.5px;color:var(--text-2)}
+tr.grp .gpart{color:var(--warn)}
+tr.enc-row td{border-top:none;background:var(--surface)}
+tr.enc-row:hover td,tr.code-row:hover td{background:var(--primary-lt)}
+tr.enc-row.is-sel td,tr.code-row.is-sel td{background:var(--primary-lt)}
+tr.code-row td,tr.note-row td,tr.add-row td{background:var(--surface-sunken)}
+tr.add-row td{border-bottom:1px solid var(--line-dk)}
+tfoot td{background:var(--surface-bar);border-top:1px solid var(--line-dk);font-size:12px;font-weight:600}
+.enc-ref b{font-weight:600;color:var(--text-1)}
+.code-l1{color:var(--text-2);font-size:11.5px}
+.code-meta{font-size:11px;color:var(--text-2)}
+.exp{width:20px;height:20px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface);color:var(--text-2)}
+.exp:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-lt)}
+.pay-in{height:28px;border-radius:var(--r-sm);font-size:12px}
+.pay-in:disabled{background:transparent;border-style:dashed;color:var(--text-3)}
+.qty-in{height:26px}
+.add-row select,.add-row input{height:28px;font-size:12px}
+.cell-err{color:var(--err);font-size:11px}
+.cell-sub{font-size:11px;color:var(--text-2)}
+.stock{border:1px solid var(--line);border-radius:var(--r-sm);font-size:11px;background:var(--surface)}
+/* Tag — 10px, 4px radius, tinted */
+.tag{border:none;border-radius:var(--r-sm);font-size:10px;font-weight:500;padding:2px 7px;line-height:normal;background:var(--muted-bg);color:var(--text-2)}
+.tag.new{background:var(--primary-lt);color:var(--primary)}
+.tag.lock{background:var(--ok-soft);color:var(--ok)}
+.tag.expd{background:var(--warn-soft);color:var(--warn);border:none}
+/* Badge — 11px pill, status tones */
+.stat{border:none;border-radius:20px;font-size:11px;font-weight:500;padding:2px 8px}
+.stat.open{background:var(--primary-lt);color:var(--primary)}
+.stat.submitted{background:var(--warn-soft);color:var(--warn)}
+.stat.approved{background:var(--ok-soft);color:var(--ok)}
+.stat.returned{background:var(--err-soft);color:var(--err)}
+
+/* DropdownMenu / Popover / ColumnManager */
+.menu{border:1px solid var(--line-dk);border-radius:var(--r-sm);box-shadow:var(--shadow-dropdown);padding:6px}
+.menu button{font-size:12px;padding:7px 10px;border-radius:var(--r-sm);color:var(--text-1)}
+.menu button:hover,.menu button:focus-visible{background:var(--primary-lt);color:var(--primary)}
+.colmgr{border:1px solid var(--line-dk);border-radius:var(--r-sm);box-shadow:var(--shadow-popover);padding:8px 0 8px;width:280px;z-index:500}
+.colmgr h3{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-2);margin:2px 12px 2px}
+.colmgr .hint{margin:0 12px 6px}
+.colmgr li{border-top:1px solid var(--line);padding:4px 8px}
+.colmgr li:hover{background:var(--primary-lt)}
+.colmgr label{font-size:12px}
+.colmgr label input{accent-color:var(--primary)}
+.colmgr .pinned{font-size:11.5px;color:var(--text-2);border-top:1px solid var(--line);padding:6px 12px 6px 28px}
+.colmgr .cm-f{border-top:1px solid var(--line);padding:8px 12px 0}
+.cm-btn[aria-expanded="true"]{background:var(--primary-lt);border-color:var(--primary);color:var(--primary)}
+
+/* Modal — 10px radius, modal shadow, 55% backdrop */
+dialog{border:none;border-radius:var(--r-lg);box-shadow:var(--shadow-modal);color:var(--text-1)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dlg-h{padding:20px 22px 12px;font-size:15px;font-weight:600}
+.dlg-b{padding:0 22px 16px;font-size:12.5px;color:var(--text-1)}
+.dlg-f{padding:14px 22px;border-top:1px solid var(--line);gap:8px}
+.preview{border-color:var(--line);border-radius:var(--r-sm);margin:0 22px}
+/* Toast — white, 3px left accent, popover shadow */
+.toasts{right:16px;bottom:16px;width:340px;max-width:calc(100vw - 32px);z-index:600}
+.toast{background:var(--surface);color:var(--text-1);border:1px solid var(--line);border-left:3px solid var(--primary);border-radius:var(--r-md);box-shadow:var(--shadow-popover);padding:10px 14px;font-size:12px}
+.toast button{border:1px solid var(--line);border-radius:var(--r-sm);color:var(--primary);font-size:12px;padding:3px 9px;background:var(--surface)}
+
+/* Sticky compact bar — secondary surface */
+.sticky-bar{background:var(--secondary);font-size:12px;box-shadow:var(--shadow-nav)}
+.sticky-bar .btn{height:30px;font-size:12px}
+
+/* PageHeader bar (history, cash) */
+.hist-head{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card);padding:10px 16px;gap:12px}
+.hist-head h2{font-size:16px;font-weight:600}
+.bal-line{font-size:12px;color:var(--text-2)}
+/* history tables */
+table.ht{font-size:12px}
+.ht th,.ht td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.ht thead th{background:var(--thead);color:var(--text-2);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--line-dk)}
+.ht tbody tr:hover > td{background:var(--primary-lt)}
+.ht tr.alloc > td,.ht tr.alloc:hover > td{background:var(--surface-sunken)}
+.ht .inner th,.ht .inner td{padding:6px 10px;border-bottom:1px solid var(--line)}
+.ht .inner th{background:transparent;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-2);font-weight:600}
+.ht tr.encl td{background:var(--section-head)}
+.ht tr.picked td{background:var(--primary-lt)}
+.hm-list,.hd,.cash .card{border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card);background:var(--surface)}
+.hm-list{overflow:auto}
+.hm-cap{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--text-2);background:var(--thead);border-bottom:1px solid var(--line-dk)}
+.hm{border-bottom:1px solid var(--line)}
+.hm:hover{background:var(--surface-row-hover)}
+.hm.on{background:var(--primary-lt);box-shadow:inset 3px 0 0 var(--primary)}
+.hm-l{font-size:12.5px} .hm-v{font-size:12.5px} .hm-s{font-size:11px;color:var(--text-2)}
+.hd{padding:14px 16px}
+.hd h3,.cash h3{font-size:13px;font-weight:600}
+.cash .card{padding:14px 16px}
+/* StatCard — summary cards */
+.pp-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card);padding:12px 16px}
+.pp-card .k{font-size:11px;font-weight:500;color:var(--text-2);margin-bottom:4px}
+.pp-card .v{font-size:20px;font-weight:600}
+.pp-card .s{font-size:11px;color:var(--text-2);margin-top:4px}
+.pp-card.now{background:var(--primary-lt);border-color:var(--line-info)}
+.hd .pp-card{padding:10px 12px}
+.hd .pp-card .v{font-size:16px}
+.pp-head h2{font-size:13px;font-weight:600}
+/* Tabs (line) — transaction type filter */
+.chips{gap:0 20px;border-bottom:1px solid var(--line);margin:6px 0 12px}
+.chip{padding:4px 0 8px;margin-bottom:-1px;border:none;border-bottom:2px solid transparent;border-radius:0;background:none;font-size:12.5px;font-weight:500;color:var(--text-2)}
+.chip:hover{color:var(--text-1)}
+.chip[aria-pressed="true"]{background:none;color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.chip:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
+/* cash count */
+.count-grid label{font-size:11px;font-weight:500;color:var(--text-2)}
+.count-grid input{height:34px;border-radius:var(--r-md);font-size:15px;font-weight:600}
+.cash textarea{font-size:12px}
+/* demo */
+.demo{border:1px dashed var(--line-dk);border-radius:var(--r-lg);font-size:12px}
+.demo .notes{font-size:12px}
+.empty{color:var(--text-2);font-size:12.5px}
+
+/* Paying and actions stay pinned to the right while the table scrolls sideways */
+.fp tr.h1 > th:nth-last-child(-n+2),.fp tr.h2 > th:nth-last-child(-n+2),
+tr.enc-row > td:nth-last-child(-n+2),tr.code-row > td:nth-last-child(-n+2),
+tr.add-row > td:nth-last-child(-n+2),tfoot tr > td:nth-last-child(-n+2){position:sticky}
+.fp tr.h1 > th:last-child,.fp tr.h2 > th:last-child,tr.enc-row > td:last-child,tr.code-row > td:last-child,tr.add-row > td:last-child,tfoot tr > td:last-child{right:0}
+.fp tr.h1 > th:nth-last-child(2),.fp tr.h2 > th:nth-last-child(2),tr.enc-row > td:nth-last-child(2),tr.code-row > td:nth-last-child(2),tr.add-row > td:nth-last-child(2),tfoot tr > td:nth-last-child(2){right:46px;box-shadow:-6px 0 6px -6px rgba(0,0,0,.18)}
+.fp thead tr > th:nth-last-child(-n+2){z-index:4}
+tr.enc-row > td:nth-last-child(-n+2),tr.code-row > td:nth-last-child(-n+2),tr.add-row > td:nth-last-child(-n+2){z-index:1}
+tfoot tr > td:nth-last-child(-n+2){z-index:3}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-trash" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5M12 7v5l3 2"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-7h8v7"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path fill="currentColor" d="M20 4c-9 0-15 4-15 11 0 1.5.4 2.8 1 4l-2 2 1.4 1.4 2.1-2.1C8.6 21 10 21.5 11.5 21.5 17 21.5 20 15 20 4zm-8.3 13.7-1.4-1.4C12 13 14 11 17 9.5c-2.5 2-4 4.3-5.3 8.2z"/></symbol>
+  <symbol id="i-cols" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 4h18v16H3zM9 4v16M15 4v16"/></symbol>
+  <symbol id="i-cash" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M2 6h20v12H2zM6 6v12M18 6v12"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-pill" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M8.5 15.5l7-7a4.95 4.95 0 0 0-7-7l-7 7a4.95 4.95 0 0 0 7 7zM5 5l7 7"/></symbol>
+</svg>
+
+<header class="appbar">
+  <span class="brand">blueEHR</span>
+  <span>Advanced Front Pay</span>
+  <span class="proto">Review prototype · fictional data · no real payments</span>
+  <span class="spacer"></span>
+  <label class="user">Signed in as<select id="selUser" aria-label="Signed-in user (demo switch)"></select></label>
+</header>
+
+<!-- ============ FRONT PAY VIEW ============ -->
+<div id="frontPayView">
+  <section class="band pbanner" aria-label="Patient">
+    <div class="pb-id">
+      <div class="pb-k">Payment for</div>
+      <div class="pb-name" id="ptName"></div>
+      <div class="pb-meta"><span id="ptId"></span> · DOB <span id="ptDob"></span></div>
+    </div>
+    <dl class="pb-fields">
+      <div><dt>Primary insurance</dt><dd id="ptPri"></dd></div>
+      <div><dt>Secondary insurance</dt><dd id="ptSec"></dd></div>
+      <div><dt>Patient balance</dt><dd id="ptBal"></dd></div>
+      <div><dt>Insurance balance</dt><dd id="ptInsBal"></dd></div>
+    </dl>
+    <div class="pb-act"><button class="btn small" id="btnBack" aria-label="Back to previous screen"><svg><use href="#i-back"/></svg>Back</button></div>
+  </section>
+
+  <main>
+    <section class="panel" id="paySection" aria-labelledby="payTitle">
+      <div class="pay-head">
+        <h2 id="payTitle">Payment entry</h2>
+        <span class="collapsed-sum" id="payCollapsedSum" aria-live="polite"></span>
+        <button class="btn small" id="payToggle" aria-expanded="true" aria-controls="payBody">Collapse</button>
+      </div>
+      <div class="pay-body" id="payBody">
+        <div class="pay-left">
+          <div class="field-row" role="radiogroup" aria-labelledby="lblMethod">
+            <span class="lab" id="lblMethod">Payment method</span>
+            <div>
+              <div class="radios" id="methodRadios"></div>
+              <div class="hint" id="methodHint" hidden>Redeem uses money already collected as prepayment. No new money is received, so no payment method applies.</div>
+            </div>
+          </div>
+          <div class="field-row" role="radiogroup" aria-labelledby="lblFrom">
+            <span class="lab" id="lblFrom">Payment from</span>
+            <div style="flex:1;min-width:0">
+              <div class="radios">
+                <label class="radio"><input type="radio" name="from" value="Patient" checked> Patient</label>
+                <label class="radio"><input type="radio" name="from" value="Insurance"> Insurance</label>
+              </div>
+              <div class="hint" id="fromHint" hidden>Insurance payments go against the chosen payer’s balance on each code. Redeem payment and Pre pay don’t apply.</div>
+            </div>
+          </div>
+          <div class="field-row" role="radiogroup" aria-labelledby="lblPayer" id="payerRow" hidden>
+            <span class="lab" id="lblPayer">Payer</span>
+            <div class="radios" id="payerRadios"></div>
+          </div>
+          <div class="field-row" role="radiogroup" aria-labelledby="lblAgainst">
+            <span class="lab" id="lblAgainst">Against</span>
+            <div class="radios">
+              <label class="radio"><input type="radio" name="purpose" value="ep" checked> Encounter payment</label>
+              <span class="radio-wrap" id="optRedeem">
+                <label class="radio"><input type="radio" name="purpose" value="redeem"> Redeem payment</label>
+                <span class="hint">Available prepayment: <b id="prepayAvail"></b></span>
+              </span>
+              <label class="radio" id="optPrepay"><input type="radio" name="purpose" value="prepay"> Pre pay</label>
+            </div>
+          </div>
+        </div>
+        <div class="pay-right">
+          <div class="f" id="refRow" hidden><label for="inRef">Reference</label><input id="inRef" placeholder="Cheque, EFT or remittance number" autocomplete="off"></div>
+          <div class="f"><label for="inDetail">Detail</label><input id="inDetail" autocomplete="off"></div>
+          <div class="f"><label for="inComment">Comment</label><input id="inComment" autocomplete="off"></div>
+          <div class="f"><label for="inAmount">Amount</label>
+            <div class="amount-wrap"><span class="cur" aria-hidden="true">$</span><input id="inAmount" class="amount-input" inputmode="decimal" placeholder="0.00" autocomplete="off" aria-describedby="amountHint"></div>
+          </div>
+          <div class="hint" id="amountHint" style="margin-left:98px"></div>
+        </div>
+        <div class="sel-summary" id="selSummary" aria-live="polite"></div>
+        <div class="review" id="reviewPanel" hidden></div>
+        <div class="msgs" id="payMsgs"></div>
+      </div>
+    </section>
+
+    <section class="panel toolbar" aria-label="Actions and filters">
+      <div class="tb-row">
+        <button class="btn" id="btnAddEnc"><svg><use href="#i-plus"/></svg>Add new encounter</button>
+        <span class="spacer"></span>
+        <button class="btn secondary" id="btnSavePrint"><svg><use href="#i-save"/></svg>Save &amp; Print</button>
+        <button class="btn primary" id="btnSave"><svg><use href="#i-save"/></svg>Save</button>
+        <span class="menu-wrap">
+          <span class="split">
+            <button class="btn" id="btnPrint"><svg><use href="#i-print"/></svg>Print</button>
+            <button class="btn" id="btnPrintMenu" aria-haspopup="menu" aria-expanded="false" aria-label="More print options">▾</button>
+          </span>
+          <div class="menu" id="printMenu" role="menu" hidden>
+            <button role="menuitem" data-print="last">Receipt for last saved payment</button>
+            <button role="menuitem" data-print="statement">Statement of filtered charges</button>
+            <button role="menuitem" data-print="history">Choose a receipt from transaction history</button>
+          </div>
+        </span>
+        <button class="btn" id="btnCash"><svg><use href="#i-cash"/></svg><span id="btnCashLbl">Close my day</span></button>
+        <button class="btn" id="btnHistory" aria-label="Transaction history" title="Transaction history"><svg><use href="#i-history"/></svg></button>
+      </div>
+      <div class="tb-row" id="filterRow">
+        <label class="ctl"><span class="sr-only">Search</span><input type="search" id="fSearch" placeholder="Search encounter, code or description" aria-label="Search by encounter reference, procedure code or description"></label>
+        <button class="btn small" id="btnSearch">Search</button>
+        <label class="ctl"><span>Program</span><select id="fProgram"></select></label>
+        <button class="btn small adv-btn" id="btnAdv" aria-expanded="false" aria-controls="advPanel">Advanced filters<span class="badge" id="advCount" hidden></span></button>
+        <span class="hint" id="advSummary"></span>
+        <span class="spacer"></span>
+        <label class="ctl"><span>Group by</span>
+          <select id="vGroup">
+            <option value="month">Month</option><option value="program">Program</option><option value="visit">Visit category</option>
+            <option value="week">Week</option><option value="day">Day</option><option value="encounter">Encounter (no groups)</option>
+          </select></label>
+      </div>
+      <div class="adv" id="advPanel" hidden>
+        <div class="adv-f">
+          <label class="ctl"><span>Service date</span>
+            <select id="fDate">
+              <option value="all">All dates</option><option value="today">Today</option><option value="thisweek">This week</option>
+              <option value="lastweek">Last week</option><option value="last14">Last 14 days</option><option value="thismonth">This month</option>
+              <option value="lastmonth">Last month</option><option value="custom">Custom range</option>
+            </select></label>
+          <span id="customDates" class="ctl" hidden>
+            <label class="ctl"><span>From</span><input type="date" id="fFrom"></label>
+            <label class="ctl"><span>To</span><input type="date" id="fTo"></label>
+          </span>
+        </div>
+        <div class="adv-f"><span class="adv-lab" id="lblCare">Care setting</span><div class="adv-checks" id="fCare" role="group" aria-labelledby="lblCare"></div></div>
+        <div class="adv-f"><label class="ctl"><span>Visit category</span><select id="fVisit"></select></label></div>
+      </div>
+      <div class="tb-row" id="checkRow">
+        <label class="chk"><input type="checkbox" id="fAvoidZero"> Avoid zero balance encounters</label>
+        <label class="chk"><input type="checkbox" id="fAvoidRx"> Avoid pharmacy code</label>
+        <label class="chk"><input type="checkbox" id="fPatPos"> <span id="fPatPosLbl">Patient balance greater than zero</span></label>
+        <button class="btn small" id="btnClearFilters">Clear filters</button>
+      </div>
+    </section>
+
+    <section class="panel pp" id="prepayView" hidden aria-labelledby="ppTitle"></section>
+
+    <div class="table-wrap" id="tableWrap">
+      <table class="fp" id="fpTable">
+        <caption class="sr-only">Encounters and procedure codes for this patient</caption>
+        <colgroup id="fpCols"></colgroup>
+        <thead id="fpHead"></thead>
+        <tbody id="fpBody"></tbody>
+        <tfoot id="fpFoot"></tfoot>
+      </table>
+    </div>
+    <nav class="pager" id="pager" aria-label="Encounter pages"></nav>
+
+    <details class="demo" id="demoArea">
+      <summary>Demo controls and prototype notes (not part of the payment workflow)</summary>
+      <div class="row">
+        <button class="btn small" id="demoFind">Show demo test encounters (DEMO-1001 to DEMO-1004)</button>
+        <button class="btn small" id="demoSelect">Show and select DEMO-1001 and DEMO-1002</button>
+        <button class="btn small" id="demoReset">Reset demo data</button>
+      </div>
+      <div class="notes" id="notes"></div>
+    </details>
+  </main>
+</div>
+
+<!-- ============ TRANSACTION HISTORY VIEW ============ -->
+<section id="historyView" hidden aria-labelledby="histTitle">
+  <div class="band"><span>Payment for: <b class="ptNameDup"></b></span><span class="spacer"></span></div>
+  <main>
+    <div class="hist-head">
+      <button class="btn" id="btnHistBack"><svg><use href="#i-back"/></svg>Back to Front Pay</button>
+      <h2 id="histTitle">Transaction history</h2>
+      <span class="spacer"></span>
+      <div class="hist-range" role="group" aria-label="Date range">
+        <label class="ctl"><span>From</span><input type="date" id="hFrom"></label>
+        <label class="ctl"><span>To</span><input type="date" id="hTo"></label>
+        <button class="btn small" id="hClear">Clear dates</button>
+      </div>
+      <span class="bal-line">Available prepayment: <b id="histPrepay"></b></span>
+    </div>
+    <div class="msg err" id="hErr" hidden></div>
+    <div class="hb">
+      <nav class="hm-list" id="hMonths" aria-label="Months"></nav>
+      <section class="hd" id="hDetail" aria-live="polite"></section>
+    </div>
+  </main>
+</section>
+
+<!-- ============ CASH SESSIONS / DAY CLOSE VIEW ============ -->
+<section id="cashView" hidden aria-labelledby="cashTitle">
+  <div class="band"><span id="cashBand"></span><span class="spacer"></span></div>
+  <main>
+    <div class="hist-head">
+      <button class="btn" id="btnCashBack"><svg><use href="#i-back"/></svg>Back to Front Pay</button>
+      <h2 id="cashTitle">Close my day</h2>
+    </div>
+    <div class="cash" id="cashBody"></div>
+  </main>
+</section>
+
+<div class="sticky-bar" id="stickyBar" hidden aria-label="Payment draft summary"></div>
+
+<dialog id="dlgConfirm" aria-labelledby="dcTitle">
+  <h2 class="dlg-h" id="dcTitle"></h2>
+  <div class="dlg-b" id="dcBody"></div>
+  <div class="dlg-f"><button class="btn" id="dcCancel"></button><button class="btn primary" id="dcOk"></button></div>
+</dialog>
+
+<dialog id="dlgSess" aria-labelledby="dsTitle">
+  <h2 class="dlg-h" id="dsTitle">Open a cash session</h2>
+  <div class="dlg-b">
+    <p>Every payment you take is counted in your own cash session, and you close it at the end of your shift. Enter the cash float in your drawer to start.</p>
+    <div class="form-grid"><label for="dsFloat">Opening float</label><input id="dsFloat" inputmode="decimal" autocomplete="off"></div>
+    <div class="msg err" id="dsErr" hidden></div>
+  </div>
+  <div class="dlg-f"><button class="btn" id="dsCancel">Cancel</button><button class="btn primary" id="dsOk">Open session</button></div>
+</dialog>
+
+<dialog id="dlgEnc" aria-labelledby="deTitle">
+  <h2 class="dlg-h" id="deTitle">Add new encounter</h2>
+  <div class="dlg-b">
+    <div class="form-grid">
+      <label for="neDate">Service date and time</label><input type="datetime-local" id="neDate" required>
+      <label for="neCare">Care setting</label><select id="neCare"></select>
+      <label for="neVisit">Visit category</label><select id="neVisit"><option>Residential</option><option>Outpatient</option></select>
+      <label for="neProgram">Program (optional)</label><select id="neProgram"></select>
+    </div>
+    <div class="msg err" id="neErr" hidden></div>
+    <p class="hint" style="margin-top:12px">Add codes after the encounter is created. Prototype form: the exact fields still need review against the real application.</p>
+  </div>
+  <div class="dlg-f"><button class="btn" id="neCancel">Cancel</button><button class="btn primary" id="neOk">Add encounter</button></div>
+</dialog>
+
+<dialog id="dlgPrint" class="wide" aria-labelledby="dpTitle">
+  <h2 class="dlg-h" id="dpTitle">Print preview</h2>
+  <div class="preview" id="printPreview"></div>
+  <div class="dlg-f"><span class="hint" style="margin-right:auto">Printing doesn't save or record another payment.</span><button class="btn" id="dpClose">Close</button><button class="btn primary" id="dpPrint"><svg><use href="#i-print"/></svg>Print</button></div>
+</dialog>
+
+<div class="colmgr" id="colMgr" role="dialog" aria-labelledby="cmTitle" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+<div id="printArea"></div>
+<script>
+'use strict';
+/* =====================================================================
+   Front Pay review prototype. Fictional data only. Nothing leaves the page.
+   All money is integer cents. Replace the DATA LAYER functions with real
+   application calls later; the UI only reads/writes through them.
+   ===================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const USD = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const money = c => USD.format((c || 0) / 100);
+const plain = c => ((c || 0) / 100).toFixed(2);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function parseMoney(raw) {
+  const s = String(raw ?? '').trim().replace(/[$,\s]/g, '');
+  if (s === '') return 0;
+  if (s.startsWith('-')) return { err: 'Amount can’t be negative.' };
+  if (!/^(\d+(\.\d{0,2})?|\.\d{1,2})$/.test(s)) return { err: 'Enter an amount like 120.50 (up to 2 decimals).' };
+  return Math.round(parseFloat(s) * 100);
+}
+
+/* ---------- dates ---------- */
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function sod(ms) { const d = new Date(ms); d.setHours(0, 0, 0, 0); return d; }
+const TODAY = sod(Date.now());
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function at(daysAgo, h, m = 0) { const d = addDays(TODAY, -daysAgo); d.setHours(h, m, 0, 0); return d.getTime(); }
+const pad = n => String(n).padStart(2, '0');
+function dayKey(ms) { const d = new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
+function mondayOf(ms) { const d = sod(ms); return addDays(d, -((d.getDay() + 6) % 7)); }
+const fmtDate = ms => { const d = new Date(ms); return `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`; };
+const fmtDT = ms => { const d = new Date(ms); return `${fmtDate(ms)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fmtDayLong = ms => `${WD[new Date(ms).getDay()]} ${fmtDate(ms)}`;
+function daysBetween(a, b) { return Math.round((sod(a) - sod(b)) / 86400000); }
+
+/* ---------- reference lists (fictional) ---------- */
+const PATIENT = { name: 'Morgan, Jordan', id: 'PID-204518', dob: new Date(1984, 6, 12).getTime(), pri: 'Northwind Health Plan', sec: 'Harbor Mutual Supplemental' };
+const FACILITY = 'Riverbend Rehabilitation Centre (fictional)';
+// Demo users. In production these come from the signed-in account and its role.
+const USERS = { asha: { name: 'Asha Nair', role: 'Front desk' }, ben: { name: 'Ben Okafor', role: 'Front desk' }, maria: { name: 'Maria Lopez', role: 'Manager' } };
+let CUR_USER = 'asha';
+const isManager = () => USERS[CUR_USER].role === 'Manager';
+const userName = u => (USERS[u] || { name: '—' }).name;
+const CARE_SETTINGS = ['Nursing', 'Occupational therapy', 'Physiotherapy', 'Psychology', 'Speech therapy'];
+const VISIT_CATS = ['Outpatient', 'Residential'];
+const PROGRAMS = ['Mood and adjustment', 'Pain management', 'Residential step-down', 'Stroke recovery'];
+const CPT = {
+  '97110': ['Therapeutic exercise to develop strength, endurance and flexibility, each 15 minutes', 9500],
+  '97112': ['Neuromuscular re-education of movement, balance and coordination, each 15 minutes', 10500],
+  '97116': ['Gait training therapy including stair climbing, each 15 minutes', 9000],
+  '97530': ['Therapeutic activities, direct one-on-one patient contact, each 15 minutes', 11000],
+  '97535': ['Self-care and home management training, each 15 minutes', 10000],
+  '97165': ['Occupational therapy evaluation, low complexity', 18000],
+  '97168': ['Occupational therapy re-evaluation of established plan of care', 12000],
+  '92507': ['Treatment of speech, language, voice, communication or auditory processing disorder', 16000],
+  '92526': ['Treatment of swallowing dysfunction and oral function for feeding', 15000],
+  '90837': ['Psychotherapy, 60 minutes with patient', 21000],
+  '90834': ['Psychotherapy, 45 minutes with patient', 16500],
+  '96127': ['Brief emotional or behavioural assessment with scoring and documentation', 3500],
+  '99232': ['Subsequent hospital care per day, moderate complexity', 14000],
+};
+const RX = {
+  'RX-1021': ['Acetaminophen 500 mg tablet', 40, 860],
+  'RX-1187': ['Baclofen 10 mg tablet', 120, 312],
+  'RX-1240': ['Omeprazole 20 mg capsule', 85, 540],
+  'RX-1302': ['Enoxaparin 40 mg/0.4 mL prefilled syringe', 1850, 87],
+};
+const SETTING_CPT = {
+  'Physiotherapy': ['97110', '97112', '97116', '97530'],
+  'Speech therapy': ['92507', '92526', '96127'],
+  'Occupational therapy': ['97530', '97535', '97165', '97168'],
+  'Psychology': ['90837', '90834', '96127'],
+  'Nursing': ['99232'],
+};
+// Responsibility split [patient %, primary %, secondary %]. Supplied as data in this prototype.
+const SPLIT = { 'Physiotherapy': [20, 65, 15], 'Speech therapy': [20, 65, 15], 'Occupational therapy': [20, 80, 0], 'Psychology': [30, 70, 0], 'Nursing': [10, 90, 0], RX: [25, 75, 0], NEW: [20, 65, 15] };
+
+/* ---------- seeded random ---------- */
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* =====================================================================
+   DATA LAYER (fictional sample)
+   ===================================================================== */
+let S; // { encounters, history, prepay, seq }
+function splitAmounts(total, split) {
+  const pat = Math.round(total * split[0] / 100);
+  const pri = Math.round(total * split[1] / 100);
+  return [pat, pri, total - pat - pri];
+}
+function makeCode(enc, type, code, qty, split, extra = {}) {
+  const [desc, price, stock] = type === 'CPT4' ? CPT[code] : RX[code];
+  const total = price * qty;
+  const [pat, pri, sec] = splitAmounts(total, split);
+  return Object.assign({
+    id: 'c' + (++S.seq.code), line: enc.codes.length + 1, type, code, desc, qty,
+    stock: type === 'Pharmacy' ? stock : null, price, split,
+    patResp: pat, priResp: pri, secResp: sec,
+    patPaid: 0,      // actual patient money applied (cash, electronic or applied prepayment)
+    insPaid: 0,      // actual insurance money received (primary + secondary)
+    priPaid: 0, secPaid: 0,
+    insExpected: 0,  // estimate only: never counted as received
+    isNew: false,
+  }, extra);
+}
+function buildData() {
+  const r = rng(20261015);
+  S = { encounters: [], history: [], prepay: 15000, seq: { code: 0, enc: 0, txn: 5000, ref: 0 } };
+  const pick = arr => arr[Math.floor(r() * arr.length)];
+  const encs = [];
+  const mkEnc = (dos, careSetting, visitCategory, program, source, signedOff) => {
+    const e = { id: 'e' + (++S.seq.enc), ref: '', dos, careSetting, visitCategory, program, source, signedOff, isNew: false, codes: [] };
+    encs.push(e); return e;
+  };
+  const fillCodes = (e) => {
+    const list = SETTING_CPT[e.careSetting];
+    const n = e.careSetting === 'Nursing' ? 1 : 1 + Math.floor(r() * Math.min(3, list.length));
+    const chosen = [...list].sort(() => r() - .5).slice(0, n);
+    for (const code of chosen) e.codes.push(makeCode(e, 'CPT4', code, 1, SPLIT[e.careSetting]));
+    const rxChance = e.careSetting === 'Nursing' ? 0.9 : 0.15;
+    if (r() < rxChance) {
+      const rx = e.careSetting === 'Nursing' ? pick(Object.keys(RX)) : 'RX-1021';
+      e.codes.push(makeCode(e, 'Pharmacy', rx, rx === 'RX-1302' ? 1 : 1 + Math.floor(r() * 6), SPLIT.RX));
+    }
+  };
+  // Residential stay: started 34 days ago, still ongoing. Separate encounter per session.
+  const slots = [[9, 0], [10, 30], [13, 0], [14, 30], [16, 0]];
+  for (let d = 34; d >= 0; d--) {
+    const wd = addDays(TODAY, -d).getDay();
+    const n = (wd === 0 || wd === 6) ? 3 : 3 + (r() < 0.6 ? 1 : 0);
+    const settings = [...CARE_SETTINGS].sort(() => r() - .5).slice(0, n);
+    const times = [...slots].sort(() => r() - .5).slice(0, n).sort((a, b) => a[0] * 60 + a[1] - b[0] * 60 - b[1]);
+    settings.forEach((cs, i) => {
+      let source = 'Scheduler', program;
+      if (cs === 'Nursing' || r() < 0.12) { source = 'Trackerboard'; program = null; }
+      else program = cs === 'Psychology' ? 'Mood and adjustment' : 'Stroke recovery';
+      const signed = d > 0 ? r() > 0.04 : false;
+      const e = mkEnc(at(d, times[i][0], times[i][1]), cs, 'Residential', program, source, signed);
+      fillCodes(e);
+    });
+  }
+  // Outpatient visits before admission, plus a few during the stay.
+  for (let d = 50; d >= 36; d -= 1 + Math.floor(r() * 2)) {
+    const cs = r() < 0.6 ? 'Physiotherapy' : 'Psychology';
+    const prog = cs === 'Physiotherapy' ? 'Pain management' : null;
+    const e = mkEnc(at(d, 11, 15), cs, 'Outpatient', prog, prog ? 'Scheduler' : 'Trackerboard', true);
+    fillCodes(e);
+  }
+  // Program name says "Residential" but the recorded visit category is Outpatient.
+  fillCodes(mkEnc(at(40, 15, 30), 'Physiotherapy', 'Outpatient', 'Residential step-down', 'Scheduler', true));
+  fillCodes(mkEnc(at(12, 17, 30), 'Psychology', 'Outpatient', null, 'Trackerboard', true));
+  fillCodes(mkEnc(at(5, 17, 30), 'Psychology', 'Outpatient', null, 'Trackerboard', true));
+
+  // Payment status by age.
+  for (const e of encs) {
+    const d = daysBetween(TODAY, e.dos);
+    const p = r(), q = r();
+    for (const c of e.codes) {
+      const ins = c.priResp + c.secResp;
+      if (d > 28) { c.insPaid = ins; c.patPaid = p < 0.7 ? c.patResp : p < 0.9 ? Math.floor(c.patResp / 2) : 0; }
+      else if (d > 14) { if (q < 0.6) c.insPaid = ins; else c.insExpected = ins; c.patPaid = p < 0.5 ? c.patResp : p < 0.7 ? Math.floor(c.patResp / 2) : 0; }
+      else { c.insExpected = ins; c.patPaid = p < 0.15 ? c.patResp : 0; }
+    }
+  }
+  encs.sort((a, b) => a.dos - b.dos);
+  encs.forEach((e, i) => { e.ref = String(990100 + i * 3 + 1); });
+  S.seq.ref = 990100 + encs.length * 3 + 10;
+
+  // Demo test encounters (findable by searching DEMO).
+  const demo = (ref, dos, cs, program, codes) => {
+    const e = { id: 'e' + (++S.seq.enc), ref, dos, careSetting: cs, visitCategory: 'Residential', program, source: 'Scheduler', signedOff: true, isNew: false, codes: [] };
+    for (const k of codes) {
+      const c = makeCode(e, 'CPT4', k.code, 1, [0, 0, 0]);
+      c.desc = k.desc; c.price = k.pat + k.pri + k.sec;
+      c.patResp = k.pat; c.priResp = k.pri; c.secResp = k.sec;
+      c.split = null; c.patPaid = k.patPaid || 0; c.insPaid = k.insPaid || 0; c.insExpected = k.insExpected || 0;
+      e.codes.push(c);
+    }
+    encs.push(e);
+  };
+  demo('DEMO-1001', at(1, 8, 0), 'Physiotherapy', 'Stroke recovery', [
+    { code: '97110', desc: 'CPT sample A – therapeutic exercise', pat: 30000, pri: 70000, sec: 0, insPaid: 70000 },
+    { code: '97112', desc: 'CPT sample B – neuromuscular re-education', pat: 40000, pri: 65000, sec: 15000, insPaid: 80000 },
+  ]);
+  demo('DEMO-1002', at(1, 8, 0), 'Physiotherapy', 'Stroke recovery', [
+    { code: '97116', desc: 'CPT sample C – gait training', pat: 50000, pri: 100000, sec: 0, insPaid: 100000 },
+    { code: '97530', desc: 'CPT sample D – therapeutic activities', pat: 80000, pri: 100000, sec: 20000, insPaid: 120000 },
+  ]);
+  demo('DEMO-1003', at(3, 8, 0), 'Occupational therapy', 'Stroke recovery', [
+    { code: '97535', desc: '$1,000 therapy before any payment (expected insurance example)', pat: 20000, pri: 80000, sec: 0, insExpected: 80000 },
+  ]);
+  demo('DEMO-1004', at(20, 8, 0), 'Occupational therapy', null, [
+    { code: '97168', desc: 'Patient paid, insurance still outstanding', pat: 20000, pri: 80000, sec: 0, patPaid: 20000, insExpected: 80000 },
+  ]);
+  // Split received insurance money by payer (primary first).
+  for (const e of encs) for (const c of e.codes) { c.priPaid = Math.min(c.insPaid, c.priResp); c.secPaid = c.insPaid - c.priPaid; }
+  S.encounters = encs;
+
+  // Historical patient transactions, consistent with patPaid above.
+  const byDay = new Map();
+  for (const e of encs) for (const c of e.codes) {
+    if (!c.patPaid) continue;
+    const d = daysBetween(TODAY, e.dos);
+    const when = d <= 14 ? e.dos + 30 * 60000 : (() => { const x = addDays(sod(e.dos), 1 + Math.floor(r() * 2)); x.setHours(11, 0); return x.getTime(); })();
+    const k = dayKey(when);
+    if (!byDay.has(k)) byDay.set(k, { at: when, allocations: [] });
+    byDay.get(k).allocations.push(allocOf(e, c, c.patPaid));
+  }
+  for (const [, v] of [...byDay.entries()].sort()) {
+    const total = v.allocations.reduce((a, x) => a + x.amount, 0);
+    S.history.push({ id: 'RCPT-' + (++S.seq.txn), at: v.at, purpose: 'Encounter payment', method: r() < 0.6 ? 'Cash' : 'Electronic', total, newMoney: true, detail: '', comment: '', allocations: v.allocations, historical: true });
+  }
+  // Prepayment ledger: advance at admission, one redemption on the first week of therapy, a later top-up.
+  const adm = addDays(TODAY, -35); adm.setHours(9, 40);
+  S.history.push({ id: 'RCPT-' + (++S.seq.txn), at: adm.getTime(), purpose: 'Pre pay', method: 'Electronic', total: 40000, newMoney: true, detail: 'Advance at admission', comment: '', allocations: [], historical: true });
+  const redAt = addDays(TODAY, -30); redAt.setHours(12, 0);
+  const red = { id: 'RCPT-' + (++S.seq.txn), at: redAt.getTime(), purpose: 'Redeem payment', method: 'Prepayment (no new money)', total: 0, newMoney: false, detail: 'Advance applied to first week of therapy', comment: '', allocations: [], historical: true };
+  for (const t of S.history) {
+    if (t.purpose !== 'Encounter payment') continue;
+    t.allocations = t.allocations.filter(a => {
+      const d = daysBetween(TODAY, a.dos);
+      if (d >= 31 && d <= 34 && red.total + a.amount <= 25000) { red.allocations.push(a); red.total += a.amount; return false; }
+      return true;
+    });
+    t.total = t.allocations.reduce((x, a) => x + a.amount, 0);
+  }
+  S.history = S.history.filter(t => t.purpose !== 'Encounter payment' || t.allocations.length);
+  if (red.total) S.history.push(red);
+  const top = addDays(TODAY, -20); top.setHours(10, 5);
+  S.history.push({ id: 'RCPT-' + (++S.seq.txn), at: top.getTime(), purpose: 'Pre pay', method: 'Cash', total: 15000, newMoney: true, detail: 'Top-up for therapy co-payments', comment: '', allocations: [], historical: true });
+  let pbal = 0;
+  for (const t of [...S.history].sort((a, b) => a.at - b.at)) {
+    if (t.purpose === 'Pre pay') { pbal += t.total; t.prepayAfter = pbal; }
+    else if (t.purpose === 'Redeem payment') { pbal -= t.total; t.prepayAfter = pbal; }
+  }
+  S.prepay = pbal;
+  // Who collected each historical payment, and cash sessions for the last three days.
+  [...S.history].sort((a, b) => a.at - b.at).forEach((t, i) => { t.user = i % 2 ? 'ben' : 'asha'; });
+  S.sessions = []; S.seq.sess = 100;
+  const mkSess = (daysAgo, user, status) => { const o = addDays(TODAY, -daysAgo); o.setHours(7, 55); const x = { id: 'CS-' + (++S.seq.sess), user, openedAt: o.getTime(), float: 10000, status, count: null, reason: '', note: '', submittedAt: null, reviewedBy: null, reviewedAt: null, reviewNote: '' }; S.sessions.push(x); return x; };
+  const s2 = mkSess(2, 'asha', 'approved'), s1 = mkSess(1, 'ben', 'submitted'), s0 = mkSess(0, 'asha', 'open');
+  for (const t of S.history) { const d = daysBetween(TODAY, t.at); const x = d === 2 ? s2 : d === 1 ? s1 : d === 0 ? s0 : null; if (x) { t.user = x.user; t.sessionId = x.id; } }
+  // Ben took a cash advance yesterday, so his session has money to reconcile.
+  const yb = addDays(TODAY, -1); yb.setHours(14, 20);
+  S.history.push({ id: 'RCPT-' + (++S.seq.txn), at: yb.getTime(), purpose: 'Pre pay', method: 'Cash', total: 20000, newMoney: true, detail: 'Weekend top-up from family', comment: 'Paid by daughter', allocations: [], historical: true, user: 'ben', sessionId: s1.id });
+  pbal = 0;
+  for (const t of [...S.history].sort((a, b) => a.at - b.at)) {
+    if (t.purpose === 'Pre pay') { pbal += t.total; t.prepayAfter = pbal; }
+    else if (t.purpose === 'Redeem payment') { pbal -= t.total; t.prepayAfter = pbal; }
+  }
+  S.prepay = pbal;
+  const at2 = addDays(TODAY, -2), at1 = addDays(TODAY, -1);
+  const e2 = sessionExpected(s2); s2.count = { cash: e2.cash, cheque: e2.cheque, electronic: e2.electronic };
+  s2.submittedAt = at2.setHours(17, 10); s2.reviewedBy = 'maria'; s2.reviewedAt = addDays(TODAY, -2).setHours(17, 40);
+  const e1 = sessionExpected(s1); s1.count = { cash: e1.cash - 500, cheque: e1.cheque, electronic: e1.electronic };
+  s1.reason = 'Change given incorrectly'; s1.note = 'Gave $5 too much change at about 3 pm.'; s1.submittedAt = at1.setHours(17, 5);
+  rebuildIndex();
+}
+function allocOf(e, c, amount) {
+  return { encId: e.id, encRef: e.ref, dos: e.dos, careSetting: e.careSetting, codeId: c.id, codeLabel: `${c.type} ${c.code}`, desc: c.desc, amount };
+}
+let IDX = new Map(), EIDX = new Map();
+function rebuildIndex() {
+  IDX = new Map(); EIDX = new Map();
+  for (const e of S.encounters) { EIDX.set(e.id, e); for (const c of e.codes) IDX.set(c.id, { e, c }); }
+}
+const patBal = c => c.patResp - c.patPaid;
+// Balance that the current payment can be applied to: the patient's, or the chosen insurer's.
+const dueBal = c => st.from === 'Insurance' ? (st.payer === 'sec' ? c.secResp - c.secPaid : c.priResp - c.priPaid) : patBal(c);
+const payerName = () => st.payer === 'sec' ? PATIENT.sec : PATIENT.pri;
+const dueLabel = () => st.from === 'Insurance' ? (st.payer === 'sec' ? 'secondary insurance balance' : 'primary insurance balance') : 'patient balance';
+const cap1 = x => x.charAt(0).toUpperCase() + x.slice(1);
+const insBal = c => c.priResp + c.secResp - c.insPaid;
+function totals(codes) {
+  const t = { charge: 0, covPat: 0, covPri: 0, covSec: 0, prevPat: 0, prevIns: 0, expIns: 0, patBal: 0, insBal: 0 };
+  for (const c of codes) {
+    t.charge += c.patResp + c.priResp + c.secResp; t.covPat += c.patResp; t.covPri += c.priResp; t.covSec += c.secResp;
+    t.prevPat += c.patPaid; t.prevIns += c.insPaid; t.expIns += c.insExpected; t.patBal += patBal(c); t.insBal += insBal(c);
+  }
+  return t;
+}
+function recalcNewCode(c) {
+  const total = c.price * c.qty;
+  [c.patResp, c.priResp, c.secResp] = splitAmounts(total, c.split);
+  c.insExpected = c.priResp + c.secResp - c.insPaid;
+}
+
+/* =====================================================================
+   UI STATE
+   ===================================================================== */
+const defaultFilters = () => ({ date: 'all', from: '', to: '', care: [], visit: 'all', program: 'all', q: '', avoidZero: true, avoidRx: false, patPos: false });
+let st;
+function resetState() {
+  st = {
+    purpose: 'ep', method: 'Cash', from: 'Patient', payer: 'pri', ref: '', prepayAmount: 0, advOpen: false, ppShow: 10,
+    h: { from: '', to: '', type: 'all', month: null, open: new Set(), codes: new Set(), page: 1 },
+    cash: { cnt: { cash: '', cheque: '', electronic: '' }, compared: false, reason: '', note: '', err: '', reviewId: null, reviewNote: '' },
+    sel: new Set(), pay: new Map(), manual: false, saving: false,
+    payCollapsed: false, reviewOpen: false, expanded: new Set(), page: 1, pageSize: 25,
+    errors: {}, msgs: [], filters: defaultFilters(), group: 'month', sort: 'dos_asc',
+    lastTxnId: null, histOpen: new Set(), addDraft: {}, amountErr: '',
+  };
+}
+
+/* ---------- view computation ---------- */
+function dateRange(f) {
+  const t0 = TODAY.getTime(), endOf = d => addDays(d, 1).getTime() - 1;
+  switch (f.date) {
+    case 'today': return [t0, endOf(TODAY)];
+    case 'thisweek': { const m = mondayOf(t0); return [m.getTime(), endOf(addDays(m, 6))]; }
+    case 'lastweek': { const m = addDays(mondayOf(t0), -7); return [m.getTime(), endOf(addDays(m, 6))]; }
+    case 'last14': return [addDays(TODAY, -13).getTime(), endOf(TODAY)];
+    case 'thismonth': { const a = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1); return [a.getTime(), endOf(new Date(TODAY.getFullYear(), TODAY.getMonth() + 1, 0))]; }
+    case 'lastmonth': { const a = new Date(TODAY.getFullYear(), TODAY.getMonth() - 1, 1); return [a.getTime(), endOf(new Date(TODAY.getFullYear(), TODAY.getMonth(), 0))]; }
+    case 'custom': return [f.from ? parseKey(f.from).getTime() : -Infinity, f.to ? endOf(parseKey(f.to)) : Infinity];
+    default: return [null, null];
+  }
+}
+const refCmp = (a, b) => a.ref.localeCompare(b.ref, undefined, { numeric: true });
+const dosCmp = (a, b) => (a.dos - b.dos) || refCmp(a, b);
+const SORTS = {
+  dos_asc: dosCmp,
+  dos_desc: (a, b) => (b.dos - a.dos) || refCmp(a, b),
+  pat_desc: (a, b) => (totals(b.codes).patBal - totals(a.codes).patBal) || dosCmp(a, b),
+  pat_asc: (a, b) => (totals(a.codes).patBal - totals(b.codes).patBal) || dosCmp(a, b),
+  charge_desc: (a, b) => (totals(b.codes).charge - totals(a.codes).charge) || dosCmp(a, b),
+  charge_asc: (a, b) => (totals(a.codes).charge - totals(b.codes).charge) || dosCmp(a, b),
+  ref: refCmp,
+  program: (a, b) => ((a.program ? 0 : 1) - (b.program ? 0 : 1)) || (a.program || '').localeCompare(b.program || '') || dosCmp(a, b),
+  visit: (a, b) => a.visitCategory.localeCompare(b.visitCategory) || dosCmp(a, b),
+};
+const GROUPS = {
+  program: { name: 'Program', key: e => e.program || '~none', label: k => k === '~none' ? 'No program' : k, kind: 'text' },
+  visit: { name: 'Visit category', key: e => e.visitCategory, label: k => k, kind: 'text' },
+  encounter: { name: 'Encounter', key: null },
+  day: { name: 'Day', key: e => dayKey(e.dos), label: k => fmtDayLong(parseKey(k).getTime()), kind: 'date' },
+  week: { name: 'Week', key: e => dayKey(mondayOf(e.dos).getTime()), label: k => `Week of ${fmtDayLong(parseKey(k).getTime())} (Mon–Sun)`, kind: 'date' },
+  month: { name: 'Month', key: e => dayKey(e.dos).slice(0, 7), label: k => `${MONL[+k.slice(5, 7) - 1]} ${k.slice(0, 4)}`, kind: 'date' },
+};
+function computeView() {
+  const f = st.filters, q = f.q.trim().toLowerCase(), [a, b] = dateRange(f);
+  const list = [], vis = new Map();
+  for (const e of S.encounters) {
+    if (a != null && (e.dos < a || e.dos > b)) continue;
+    if (f.care.length && !f.care.includes(e.careSetting)) continue;
+    if (f.visit !== 'all' && e.visitCategory !== f.visit) continue;
+    if (f.program !== 'all' && (f.program === '~none' ? !!e.program : e.program !== f.program)) continue;
+    const refHit = !!q && e.ref.toLowerCase().includes(q);
+    const codes = e.codes.filter(c => {
+      if (f.avoidRx && c.type === 'Pharmacy') return false;
+      if (q && !refHit) return `${c.type} ${c.code} ${c.desc}`.toLowerCase().includes(q);
+      return true;
+    });
+    if (q && !refHit && codes.length === 0) continue;
+    if (f.avoidRx && e.codes.length && codes.length === 0) continue;
+    const t = totals(e.codes);
+    // Zero-balance rule: hide only when BOTH patient and insurance balances are settled.
+    if (f.avoidZero && t.charge > 0 && t.patBal === 0 && t.insBal === 0) continue;
+    if (f.patPos && e.codes.reduce((x, c) => x + dueBal(c), 0) <= 0) continue;
+    list.push(e); vis.set(e.id, codes);
+  }
+  const g = GROUPS[st.group], cmp = SORTS[st.sort];
+  let groups;
+  if (!g.key) { list.sort(cmp); groups = [{ key: 'all', label: null, encs: list }]; }
+  else {
+    const m = new Map();
+    for (const e of list) { const k = g.key(e); if (!m.has(k)) m.set(k, { key: k, label: g.label(k), encs: [] }); m.get(k).encs.push(e); }
+    groups = [...m.values()];
+    if (g.kind === 'date') groups.sort((x, y) => y.key.localeCompare(x.key)); // newest period at the top; sort applies inside each period
+    else groups.sort((x, y) => (x.key === '~none') - (y.key === '~none') || x.label.localeCompare(y.label));
+    groups.forEach(gr => gr.encs.sort(cmp));
+  }
+  const ordered = groups.flatMap(gr => gr.encs);
+  const pages = Math.max(1, Math.ceil(ordered.length / st.pageSize));
+  if (st.page > pages) st.page = pages;
+  const start = (st.page - 1) * st.pageSize;
+  const pageEncs = ordered.slice(start, start + st.pageSize);
+  const groupOf = new Map(); groups.forEach(gr => gr.encs.forEach(e => groupOf.set(e.id, gr)));
+  return { groups, ordered, vis, pages, start, pageEncs, groupOf, codeFiltered: !!q || f.avoidRx };
+}
+let V; // current view
+// When the service-date filter cuts a month or week, say which part is shown.
+function groupClip(gr) {
+  const g = GROUPS[st.group];
+  if (g.kind !== 'date' || st.group === 'day') return '';
+  const [a, b] = dateRange(st.filters);
+  if (a == null) return '';
+  let start, end;
+  if (st.group === 'month') { const y = +gr.key.slice(0, 4), m = +gr.key.slice(5, 7) - 1; start = new Date(y, m, 1); end = new Date(y, m + 1, 0); }
+  else { start = parseKey(gr.key); end = addDays(start, 6); }
+  const s0 = start.getTime(), e0 = addDays(end, 1).getTime() - 1;
+  if (a <= s0 && b >= e0) return '';
+  const from = new Date(Math.max(a, s0)), to = new Date(Math.min(b, e0));
+  return `${from.getDate()} ${MON[from.getMonth()]} – ${to.getDate()} ${MON[to.getMonth()]}`;
+}
+
+/* ---------- selection & allocation ---------- */
+const selectable = c => dueBal(c) > 0 && st.purpose !== 'prepay';
+const amountTotal = () => { let s = 0; for (const id of st.sel) s += st.pay.get(id) || 0; return s; };
+const selectedBalance = () => { let s = 0; for (const id of st.sel) { const x = IDX.get(id); if (x) s += dueBal(x.c); } return s; };
+function allocationOrder() {
+  const out = [], seen = new Set();
+  for (const e of V.ordered) for (const c of V.vis.get(e.id)) if (st.sel.has(c.id)) { out.push(c); seen.add(c.id); }
+  for (const id of st.sel) if (!seen.has(id) && IDX.get(id)) out.push(IDX.get(id).c);
+  return out;
+}
+function addSel(c) { if (st.sel.has(c.id) || !selectable(c)) return; st.sel.add(c.id); st.pay.set(c.id, dueBal(c)); }
+function removeSel(id) { st.sel.delete(id); st.pay.delete(id); delete st.errors['pc-' + id]; }
+function eligibleCodes(e) { return (V.vis.get(e.id) || []).filter(selectable); }
+function clearDraft() { st.reviewOpen = false; st.sel.clear(); st.pay.clear(); st.manual = false; st.errors = {}; st.amountErr = ''; }
+const hasDraft = () => st.sel.size > 0;
+function distribute(codes, cents) {
+  let rem = cents;
+  for (const c of codes) { const give = Math.min(dueBal(c), rem); st.pay.set(c.id, give); rem -= give; }
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+const icon = (id, cls = '') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+function render() {
+  const fk = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.fkey : null;
+  V = computeView();
+  renderPayment(); renderControls(); renderBand();
+  const pp = st.purpose === 'prepay';
+  ['#filterRow', '#checkRow', '#tableWrap', '#pager', '#btnAddEnc'].forEach(x => { $(x).hidden = pp; });
+  $('#advPanel').hidden = pp || !st.advOpen;
+  $('#prepayView').hidden = !pp;
+  if (pp) renderPrepay(); else { renderTable(); renderPager(); }
+  renderSticky();
+  if (cmOpen) renderColMgr();
+  if (!$('#historyView').hidden) renderHistory();
+  if (!$('#cashView').hidden) renderCash();
+  if (fk) { const el = document.querySelector(`[data-fkey="${CSS.escape(fk)}"]`); if (el && el !== document.activeElement) el.focus(); }
+}
+function purposeLabel(p = st.purpose) { return { ep: 'Encounter payment', redeem: 'Redeem payment', prepay: 'Pre pay' }[p]; }
+function selStats() {
+  const encs = new Set(); let codes = 0;
+  for (const id of st.sel) { const x = IDX.get(id); if (x) { encs.add(x.e.id); codes++; } }
+  const onPage = new Set(V.pageEncs.map(e => e.id));
+  const other = [...encs].filter(id => !onPage.has(id)).length;
+  return { codes, encs: encs.size, other };
+}
+function renderPayment() {
+  $('#ptName').textContent = PATIENT.name; $('.ptNameDup').textContent = PATIENT.name;
+  $('#ptId').textContent = PATIENT.id; $('#ptDob').textContent = fmtDate(PATIENT.dob);
+  $('#ptPri').textContent = PATIENT.pri; $('#ptSec').textContent = PATIENT.sec;
+  $('#prepayAvail').textContent = money(S.prepay);
+  $$('input[name=purpose]').forEach(r => r.checked = r.value === st.purpose);
+  const redeem = st.purpose === 'redeem';
+  const methods = st.from === 'Insurance' ? ['Cheque', 'EFT'] : ['Cash', 'Electronic'];
+  if (!methods.includes(st.method)) st.method = methods[0];
+  $('#methodRadios').innerHTML = methods.map(m => `<label class="radio ${redeem ? 'dis' : ''}"><input type="radio" name="method" value="${m}" ${st.method === m ? 'checked' : ''} ${redeem ? 'disabled' : ''}> ${m}</label>`).join('');
+  $('#methodHint').hidden = !redeem;
+  const ins = st.from === 'Insurance';
+  $$('input[name=from]').forEach(r => r.checked = r.value === st.from);
+  $('#optRedeem').hidden = ins; $('#optPrepay').hidden = ins; $('#fromHint').hidden = !ins;
+  $('#payerRow').hidden = !ins; $('#refRow').hidden = !ins;
+  $('#payerRadios').innerHTML = [['pri', 'Primary', PATIENT.pri], ['sec', 'Secondary', PATIENT.sec]].map(([v, l, n]) => `<label class="radio"><input type="radio" name="payer" value="${v}" ${st.payer === v ? 'checked' : ''}> ${l} · ${esc(n)}</label>`).join('');
+  if (document.activeElement !== $('#inRef')) $('#inRef').value = st.ref;
+  const amt = $('#inAmount');
+  if (document.activeElement !== amt) amt.value = st.purpose === 'prepay' ? (st.prepayAmount ? plain(st.prepayAmount) : '') : (st.sel.size ? plain(amountTotal()) : '');
+  amt.setAttribute('aria-invalid', st.amountErr ? 'true' : 'false');
+  const s = selStats(), selBal = selectedBalance(), total = amountTotal();
+  $('#amountHint').textContent = st.amountErr ? st.amountErr :
+    st.purpose === 'prepay' ? 'Advance payment. Not applied to any encounter yet.' :
+    st.sel.size ? 'Changing Amount spreads it across the selected codes in the order shown in the table.' : `Select encounters or codes first. Amount fills from their ${dueLabel()}s.`;
+  $('#amountHint').style.color = st.amountErr ? 'var(--err)' : '';
+
+  const sum = $('#selSummary');
+  if (st.purpose === 'prepay') {
+    sum.innerHTML = `<div><span class="k">Purpose</span><span class="v">Pre pay</span></div>
+      <div><span class="k">Prepayment amount</span><span class="v">${money(st.prepayAmount)}</span></div>
+      <div><span class="k">Available prepayment after save</span><span class="v">${money(S.prepay + st.prepayAmount)}</span></div>
+      <span class="grow hint">No encounter selection is needed. Use Redeem payment later to apply it to charges.</span>`;
+  } else {
+    sum.innerHTML = `<div><span class="k">Purpose</span><span class="v">${purposeLabel()}</span></div>
+      <div><span class="k">Selected</span><span class="v">${s.codes} code${s.codes === 1 ? '' : 's'} in ${s.encs} encounter${s.encs === 1 ? '' : 's'}</span>${s.other ? `<span class="hint"> (${s.other} on other pages)</span>` : ''}</div>
+      <div><span class="k">Selected ${dueLabel()}</span><span class="v">${money(selBal)}</span></div>
+      <div><span class="k">Paying</span><span class="v">${money(total)}</span></div>
+      <div><span class="k">Left on selected items</span><span class="v">${money(selBal - total)}</span></div>
+      ${redeem ? `<div><span class="k">Prepayment left after save</span><span class="v">${money(S.prepay - total)}</span></div>` : ''}
+      <span class="grow"></span>
+      <button class="btn small" id="btnReview" aria-expanded="${st.reviewOpen}" aria-controls="reviewPanel" ${st.sel.size ? '' : 'disabled'}>${st.reviewOpen ? 'Hide' : 'Review'} allocation</button>
+      <button class="btn small" id="btnClearSel" ${st.sel.size ? '' : 'disabled'}>Clear selection</button>`;
+  }
+  const rv = $('#reviewPanel');
+  rv.hidden = !(st.reviewOpen && st.sel.size && st.purpose !== 'prepay');
+  if (!rv.hidden) {
+    let html = '<table><thead><tr><th>Order</th><th>Encounter / code</th><th class="num">${cap1(dueLabel())}</th><th class="num">Paying</th></tr></thead><tbody>';
+    let n = 0, lastE = null;
+    for (const c of allocationOrder()) {
+      const e = IDX.get(c.id).e;
+      if (e !== lastE) { html += `<tr class="enc"><td></td><td colspan="3">${esc(e.ref)} · ${esc(e.visitCategory)} · ${fmtDT(e.dos)} · ${esc(e.careSetting)}</td></tr>`; lastE = e; }
+      html += `<tr><td>${++n}</td><td>${esc(c.type)} ${esc(c.code)} – ${esc(c.desc)}</td><td class="num">${money(dueBal(c))}</td><td class="num">${money(st.pay.get(c.id))}</td></tr>`;
+    }
+    rv.innerHTML = html + '</tbody></table>';
+  }
+  // live warnings + messages
+  const warn = [];
+  if (redeem && total > S.prepay) warn.push(`Paying total (${money(total)}) is more than available prepayment (${money(S.prepay)}). Lower the Amount before saving.`);
+  if (redeem && S.prepay === 0) warn.push('No prepayment is available to redeem.');
+  $('#payMsgs').innerHTML = warn.map(w => `<div class="msg warn" role="status">${esc(w)}</div>`).join('') + st.msgs.map(m =>
+    `<div class="msg ${m.type}" role="${m.type === 'err' ? 'alert' : 'status'}"><div class="grow">${m.html}</div><button class="btn link" data-dismiss="${m.id}">Dismiss</button></div>`).join('');
+
+  $('#payBody').hidden = st.payCollapsed;
+  $('#payToggle').textContent = st.payCollapsed ? 'Expand' : 'Collapse';
+  $('#payToggle').setAttribute('aria-expanded', String(!st.payCollapsed));
+  $('#payCollapsedSum').textContent = st.payCollapsed ? collapsedText() : '';
+  const busy = st.saving;
+  $('#btnSave').disabled = busy; $('#btnSavePrint').disabled = busy;
+  $('#btnSave').lastChild.textContent = busy ? 'Saving…' : 'Save';
+}
+function collapsedText() {
+  if (st.purpose === 'prepay') return `Pre pay · Amount ${money(st.prepayAmount)}`;
+  const s = selStats();
+  return `${st.from === 'Insurance' ? 'Insurance · ' + payerName() + ' · ' : ''}${purposeLabel()} · ${s.codes} codes in ${s.encs} encounters · Selected ${dueLabel()} ${money(selectedBalance())} · Amount ${money(amountTotal())}`;
+}
+function renderControls() {
+  const f = st.filters;
+  $('#fDate').value = f.date; $('#customDates').hidden = f.date !== 'custom';
+  $('#fFrom').value = f.from; $('#fTo').value = f.to;
+  $('#fCare').innerHTML = CARE_SETTINGS.map(c => `<label class="chk"><input type="checkbox" value="${esc(c)}" ${f.care.includes(c) ? 'checked' : ''}> ${esc(c)}</label>`).join('');
+  $('#fVisit').innerHTML = ['<option value="all">All</option>', ...VISIT_CATS.map(v => `<option>${v}</option>`)].join(''); $('#fVisit').value = f.visit;
+  $('#fProgram').innerHTML = ['<option value="all">All programs</option>', ...PROGRAMS.map(p => `<option>${esc(p)}</option>`), '<option value="~none">No program</option>'].join(''); $('#fProgram').value = f.program;
+  if (document.activeElement !== $('#fSearch')) $('#fSearch').value = f.q;
+  $('#fPatPosLbl').textContent = `${cap1(dueLabel())} greater than zero`;
+  $('#fAvoidZero').checked = f.avoidZero; $('#fAvoidRx').checked = f.avoidRx; $('#fPatPos').checked = f.patPos;
+  $('#vGroup').value = st.group;
+  // Advanced filters: count and a short summary so hidden filters stay visible when the panel is closed.
+  const parts = [];
+  if (f.date !== 'all') parts.push(f.date === 'custom' ? `${f.from || 'start'} to ${f.to || 'today'}` : $('#fDate').selectedOptions[0].textContent);
+  if (f.care.length) parts.push(f.care.length === 1 ? f.care[0] : `${f.care.length} care settings`);
+  if (f.visit !== 'all') parts.push(f.visit);
+  $('#advCount').hidden = !parts.length; $('#advCount').textContent = parts.length;
+  $('#btnAdv').setAttribute('aria-expanded', String(st.advOpen));
+  $('#advSummary').textContent = !st.advOpen && parts.length ? parts.join(' · ') : '';
+}
+function renderBand() {
+  const all = totals(S.encounters.flatMap(e => e.codes));
+  $('#ptBal').textContent = money(all.patBal); $('#ptInsBal').textContent = money(all.insBal);
+}
+function moneyCell(v, cls = '') { return `<td class="num ${cls}">${money(v)}</td>`; }
+function delReason(e, c) {
+  if (c) {
+    if (c.patPaid || c.insPaid) return 'This item has a recorded payment, so it can’t be deleted.';
+    if (!c.isNew) return 'Existing order. In this prototype only new draft orders can be deleted; real delete rules still need confirmation.';
+    return null;
+  }
+  if (e.codes.some(x => x.patPaid || x.insPaid)) return 'This encounter has recorded payments, so it can’t be deleted.';
+  if (e.signedOff) return 'This encounter is signed off. Delete rules for signed-off encounters still need confirmation.';
+  if (!e.isNew) return 'Existing encounter. In this prototype only encounters added in this session can be deleted.';
+  if (e.codes.some(x => !x.isNew)) return 'This encounter has existing orders.';
+  return null;
+}
+/* ---------- columns ---------- */
+const chargeOf = c => c.patResp + c.priResp + c.secResp;
+const COLS = {
+  dos: { label: 'DOS', w: 132, sort: 'dos', aria: 'Service date',
+    enc: e => `<td><span class="dos">${fmtDT(e.dos)}</span></td>`, code: () => '<td></td>' },
+  enc: { label: 'Encounter', w: 210, locked: true,
+    enc: (e, t, x) => `<td><div class="enc-ref"><button class="exp" data-act="expand" data-id="${e.id}" data-fkey="ex-${e.id}" aria-expanded="${x.open}" aria-label="${x.open ? 'Hide' : 'Show'} codes for encounter ${esc(e.ref)}">${x.open ? '−' : '+'}</button><b>${esc(e.ref)}</b><span style="white-space:nowrap">· ${esc(e.visitCategory)}
+        <button class="icon-btn legacy-ic" data-act="legacy" aria-label="Existing action for encounter ${esc(e.ref)} (function to be confirmed)" title="Existing action (function to be confirmed)">${icon('i-leaf')}</button></span></div>${x.sub ? `<div class="sub">${x.sub}</div>` : ''}</td>`,
+    code: (c, e) => `<td class="c-a" title="${esc(c.type)} ${esc(c.code)}: ${esc(c.desc)}"><div class="code-l1">${esc(c.type)} : ${esc(c.code)} ${c.isNew ? '<span class="tag new">Draft order</span>' : ''}</div><div class="code-desc">${esc(c.desc)}</div>
+        <div class="code-meta">Qty ${c.isNew ? `<input class="qty-in" type="number" min="1" max="999" step="1" data-input="qty" data-id="${c.id}" data-fkey="q-${c.id}" value="${c.qty}" aria-label="Quantity for draft order ${esc(c.code)}">` : c.qty} × ${money(c.price)}${c.type === 'Pharmacy' ? ` · Stock <span class="stock" title="Stock on hand (display only)">${c.stock}</span><button class="icon-btn legacy-ic" data-act="rx" data-id="${c.id}" aria-label="Pharmacy details for ${esc(c.desc)}" title="Pharmacy details">${icon('i-pill')}</button>` : ''}</div></td>` },
+  care: { label: 'Care setting', w: 122,
+    enc: e => `<td title="${esc(e.careSetting)}">${esc(e.careSetting)}</td>`, code: () => '<td></td>' },
+  program: { label: 'Program', w: 132,
+    enc: e => `<td title="${esc(e.program || 'No program')}">${e.program ? esc(e.program) : '<i class="muted">No program</i>'}</td>`, code: () => '<td></td>' },
+  charge: { label: 'Charge', w: 92, money: true, sort: 'charge', aria: 'Charge',
+    enc: (e, t) => moneyCell(t.charge, 'cg'), code: c => moneyCell(chargeOf(c), 'cg'), foot: ft => moneyCell(ft.charge, 'cg') },
+  cov: { label: 'Coverage', money: true, subs: [{ label: 'Patient', w: 84 }, { label: 'Pri ins', w: 84 }, { label: 'Sec ins', w: 80 }],
+    enc: (e, t) => moneyCell(t.covPat, 'cg') + moneyCell(t.covPri) + moneyCell(t.covSec),
+    code: c => moneyCell(c.patResp, 'cg') + moneyCell(c.priResp) + moneyCell(c.secResp),
+    foot: ft => moneyCell(ft.covPat, 'cg') + moneyCell(ft.covPri) + moneyCell(ft.covSec) },
+  prev: { label: 'Prev payments', money: true, subs: [{ label: 'Patient', w: 84 }, { label: 'Insurance', w: 90 }],
+    enc: (e, t) => moneyCell(t.prevPat, 'cg') + moneyCell(t.prevIns),
+    code: c => moneyCell(c.patPaid, 'cg') + moneyCell(c.insPaid),
+    foot: ft => moneyCell(ft.prevPat, 'cg') + moneyCell(ft.prevIns) },
+  bal: { label: 'Balance', money: true, locked: true, subs: [{ label: 'Patient', w: 96, sort: 'pat', aria: 'Patient balance' }, { label: 'Insurance', w: 90 }],
+    enc: (e, t) => `<td class="num cg"><b>${money(t.patBal)}</b></td>` + moneyCell(t.insBal),
+    code: c => `<td class="num cg"><b>${money(patBal(c))}</b></td>` + moneyCell(insBal(c)),
+    foot: ft => moneyCell(ft.patBal, 'cg') + moneyCell(ft.insBal) },
+};
+const DEFAULT_COLS = ['dos', 'enc', 'care', 'program', 'charge', 'cov', 'prev', 'bal'];
+let colPref = { order: [...DEFAULT_COLS], hidden: new Set() };
+// Column layout is saved per user automatically. Browser storage is used when available;
+// otherwise it is kept in memory for this session. Production would save it to the user's profile.
+const colMem = {};
+const colKey = u => 'blueehr.frontpay.columns.' + u;
+function loadCols(u) {
+  let raw = colMem[u] || null;
+  try { raw = localStorage.getItem(colKey(u)) || raw; } catch (_) { /* storage unavailable */ }
+  colPref = { order: [...DEFAULT_COLS], hidden: new Set() };
+  if (!raw) return;
+  try {
+    const v = JSON.parse(raw);
+    const order = (v.order || []).filter(k => COLS[k]);
+    DEFAULT_COLS.forEach(k => { if (!order.includes(k)) order.push(k); });
+    colPref = { order, hidden: new Set((v.hidden || []).filter(k => COLS[k] && !COLS[k].locked)) };
+  } catch (_) { /* ignore a damaged saved layout */ }
+}
+let colSavedAt = 0;
+function saveCols() {
+  const raw = JSON.stringify({ order: colPref.order, hidden: [...colPref.hidden] });
+  colMem[CUR_USER] = raw; colSavedAt = Date.now();
+  try { localStorage.setItem(colKey(CUR_USER), raw); } catch (_) { /* memory only */ }
+}
+const visCols = () => colPref.order.filter(k => !colPref.hidden.has(k));
+const colCount = cols => 1 + cols.reduce((a, k) => a + (COLS[k].subs ? COLS[k].subs.length : 1), 0) + 2;
+function thCell(label, sort, cls, aria) {
+  if (!sort) return `<th scope="col" class="${cls}">${esc(label)}</th>`;
+  const dir = st.sort === sort + '_asc' ? 'ascending' : st.sort === sort + '_desc' ? 'descending' : null;
+  const ic = dir === 'ascending' ? '▲' : dir === 'descending' ? '▼' : '↕';
+  const words = sort === 'dos' ? { ascending: 'oldest first', descending: 'newest first' } : { ascending: 'lowest first', descending: 'highest first' };
+  const next = sort === 'dos' ? (dir === 'ascending' ? words.descending : words.ascending) : (dir === 'descending' ? words.ascending : words.descending);
+  return `<th scope="col" class="${cls}" ${dir ? `aria-sort="${dir}"` : ''}><button class="sort-btn" data-sort="${sort}" title="Sort by ${esc((aria || label).toLowerCase())}, ${next}" aria-label="${esc(aria || label)}${dir ? `, sorted ${words[dir]}` : ''}. Sort ${next}">${esc(label)}<span class="si" aria-hidden="true">${ic}</span></button></th>`;
+}
+function renderHead() {
+  const cols = visCols();
+  let cg = '<col style="width:34px">', h1 = '<th></th>', width = 34 + 112 + 46;
+  let h2 = `<th><input type="checkbox" id="chkPage" aria-label="Select all eligible codes in the current filter, on all pages" title="Select all filtered results (all pages)"></th>`;
+  for (const k of cols) {
+    const c = COLS[k];
+    if (c.subs) {
+      h1 += `<th colspan="${c.subs.length}" class="cg" scope="colgroup">${esc(c.label)}</th>`;
+      c.subs.forEach((sc, i) => { cg += `<col style="width:${sc.w}px">`; width += sc.w; h2 += thCell(sc.label, sc.sort, 'num' + (i === 0 ? ' cg' : ''), sc.aria); });
+    } else {
+      cg += `<col style="width:${c.w}px">`; width += c.w; h1 += '<th></th>';
+      h2 += thCell(c.label, c.sort, c.money ? 'num cg' : '', c.aria);
+    }
+  }
+  cg += '<col style="width:112px"><col style="width:46px">';
+  h1 += `<th class="cg" scope="col">Current</th><th class="cm-cell"><button class="icon-btn cm-btn" id="btnCols" aria-haspopup="dialog" aria-expanded="${cmOpen}" aria-controls="colMgr" aria-label="Manage columns" title="Manage columns">${icon('i-cols')}</button></th>`;
+  h2 += '<th scope="col" class="num cg">Paying</th><th scope="col"><span class="sr-only">Actions</span></th>';
+  $('#fpCols').innerHTML = cg;
+  $('#fpHead').innerHTML = `<tr class="h1">${h1}</tr><tr class="h2">${h2}</tr>`;
+  $('#fpTable').style.minWidth = width + 'px';
+}
+function renderTable() {
+  renderHead();
+  const body = $('#fpBody'), prepay = st.purpose === 'prepay', cols = visCols(), N = colCount(cols);
+  let h = '', lastG = null;
+  if (!V.ordered.length) {
+    const f = st.filters, hidden = S.encounters.length;
+    h = `<tr><td colspan="${N}" class="empty"><p><b>No encounters match these filters.</b></p>
+      <p>${f.avoidZero ? 'Avoid zero balance encounters is on, so fully settled encounters are hidden. ' : ''}Try a wider service date or care setting in Advanced filters, or clear the search.</p>
+      <button class="btn" data-act="clearFilters">Clear filters</button> <span class="hint">${hidden} encounters exist for this patient.</span></td></tr>`;
+  }
+  for (const e of V.pageEncs) {
+    const gr = V.groupOf.get(e.id);
+    if (gr.label && gr !== lastG) {
+      const gt = totals(gr.encs.flatMap(x => x.codes));
+      const cont = V.ordered.indexOf(gr.encs[0]) < V.start ? ' (continued)' : '';
+      const gElig = gr.encs.flatMap(eligibleCodes), gSel = gElig.filter(c => st.sel.has(c.id)).length;
+      const gFull = gElig.length > 0 && gSel === gElig.length, gPart = gSel > 0 && !gFull;
+      const clip = groupClip(gr);
+      h += `<tr class="grp"><td class="gchk"><input type="checkbox" data-act="selGroup" data-gkey="${esc(gr.key)}" data-fkey="sg-${esc(gr.key)}" ${gFull ? 'checked' : ''} ${gPart ? 'data-indet="1"' : ''} ${gElig.length ? '' : 'disabled'}
+        aria-label="Select all eligible codes in ${esc(gr.label)}${clip ? ' (filtered part only)' : ''}" title="${gElig.length ? `Select every eligible code in ${esc(gr.label)}, on all pages` : esc(prepay ? 'Pre pay doesn’t use encounter selection' : `No ${dueLabel()} to collect in this group`)}"></td><th colspan="${N - 1}" scope="rowgroup">${esc(GROUPS[st.group].name)}: ${esc(gr.label)}${cont}${clip ? `<span class="gpart">Showing ${esc(clip)} only</span>` : ''}<span class="gmeta">${gr.encs.length} encounter${gr.encs.length === 1 ? '' : 's'} · patient balance ${money(gt.patBal)} · insurance balance ${money(gt.insBal)}</span></th></tr>`;
+      lastG = gr;
+    }
+    const vis = V.vis.get(e.id), t = totals(e.codes), elig = vis.filter(selectable);
+    const nSel = elig.filter(c => st.sel.has(c.id)).length;
+    const anySel = vis.some(c => st.sel.has(c.id));
+    const full = elig.length > 0 && nSel === elig.length, part = nSel > 0 && !full;
+    const open = st.expanded.has(e.id);
+    const encPay = vis.filter(c => st.sel.has(c.id)).reduce((a, c) => a + (st.pay.get(c.id) || 0), 0);
+    const due = e.codes.reduce((a, c) => a + dueBal(c), 0);
+    const noBalReason = prepay ? 'Pre pay doesn’t use encounter selection' : due === 0 ? (st.from === 'Insurance' ? `Nothing owed by ${payerName()}` : t.insBal > 0 ? 'No patient balance. Only insurance is outstanding.' : 'Settled') : 'No eligible codes in the current filter';
+    const dr = delReason(e), err = st.errors['pe-' + e.id];
+    const sub = (e.isNew ? '<span class="tag new">Added now</span> ' : '') + (V.codeFiltered && vis.length < e.codes.length ? `${vis.length} of ${e.codes.length} codes match` : '');
+    const x = { open, sub };
+    h += `<tr class="enc-row ${full ? 'is-sel' : part ? 'is-sel is-part' : ''}" data-enc="${e.id}">
+      <td><input type="checkbox" data-act="selEnc" data-id="${e.id}" data-fkey="se-${e.id}" ${full ? 'checked' : ''} ${part ? 'data-indet="1"' : ''} ${elig.length ? '' : 'disabled'}
+        aria-label="Select encounter ${esc(e.ref)}${part ? ' (some codes selected)' : ''}" title="${elig.length ? '' : esc(noBalReason)}"></td>
+      ${cols.map(k => COLS[k].enc(e, t, x)).join('')}
+      <td class="cg"><input class="pay-in" data-input="payEnc" data-id="${e.id}" data-fkey="pe-${e.id}" inputmode="decimal" value="${anySel ? plain(encPay) : ''}" placeholder="${anySel ? '0.00' : '—'}" ${anySel ? '' : 'disabled'} aria-label="Paying for encounter ${esc(e.ref)}" ${err ? 'aria-invalid="true"' : ''}>
+        ${err ? `<div class="cell-err">${esc(err)}</div>` : part ? `<div class="cell-sub">${nSel} of ${elig.length} codes</div>` : ''}</td>
+      <td><button class="icon-btn" data-act="delEnc" data-id="${e.id}" aria-label="Delete encounter ${esc(e.ref)}" ${dr ? `aria-disabled="true" title="${esc(dr)}"` : 'title="Delete encounter"'}>${icon('i-trash')}</button></td></tr>`;
+    if (open) {
+      for (const c of vis) {
+        const sel = st.sel.has(c.id), can = selectable(c), cr = delReason(e, c), cerr = st.errors['pc-' + c.id];
+        h += `<tr class="code-row ${sel ? 'is-sel' : ''}" data-code="${c.id}">
+          <td><input type="checkbox" data-act="selCode" data-id="${c.id}" data-fkey="sc-${c.id}" ${sel ? 'checked' : ''} ${can || sel ? '' : 'disabled'} aria-label="Select ${esc(c.type)} ${esc(c.code)} on encounter ${esc(e.ref)}" title="${can || sel ? '' : esc(prepay ? 'Pre pay doesn’t use selection' : `No ${dueLabel()} on this code`)}"></td>
+          ${cols.map(k => COLS[k].code(c, e)).join('')}
+          <td class="cg"><input class="pay-in" data-input="payCode" data-id="${c.id}" data-fkey="pc-${c.id}" inputmode="decimal" value="${sel ? plain(st.pay.get(c.id)) : ''}" placeholder="${sel ? '0.00' : '—'}" ${sel ? '' : 'disabled'} aria-label="Paying for ${esc(c.code)} on encounter ${esc(e.ref)}" ${cerr ? 'aria-invalid="true"' : ''}>${cerr ? `<div class="cell-err">${esc(cerr)}</div>` : ''}</td>
+          <td><button class="icon-btn" data-act="delCode" data-id="${c.id}" aria-label="Delete ${esc(c.code)} from encounter ${esc(e.ref)}" ${cr ? `aria-disabled="true" title="${esc(cr)}"` : 'title="Delete draft order"'}>${icon('i-trash')}</button></td></tr>`;
+      }
+      if (vis.length < e.codes.length) {
+        const hid = e.codes.filter(c => !vis.includes(c)), ht = totals(hid);
+        h += `<tr class="note-row"><td></td><td colspan="${N - 1}">${hid.length} code${hid.length === 1 ? '' : 's'} hidden by the current search or pharmacy filter (patient balance ${money(ht.patBal)}). Hidden codes are never selected. Encounter totals above include them.</td></tr>`;
+      }
+      if (!e.codes.length) h += `<tr class="note-row"><td></td><td colspan="${N - 1}">No codes yet. Add a code below.</td></tr>`;
+      h += addRowHtml(e, N);
+    }
+  }
+  body.innerHTML = h;
+  $$('input[data-indet]', body).forEach(i => i.indeterminate = true);
+  // header checkbox: every eligible code in the current filter, all pages
+  const allElig = V.ordered.flatMap(eligibleCodes), aSel = allElig.filter(c => st.sel.has(c.id)).length;
+  const cp = $('#chkPage');
+  cp.disabled = !allElig.length; cp.checked = allElig.length > 0 && aSel === allElig.length; cp.indeterminate = aSel > 0 && aSel < allElig.length;
+  // footer
+  const ft = totals(V.ordered.flatMap(e => e.codes));
+  let lead = 0; while (lead < cols.length && !COLS[cols[lead]].money) lead++;
+  let fr = '<tr><td></td>';
+  if (lead) fr += `<td colspan="${lead}">Current filter total · ${V.ordered.length} encounters, all pages</td>`;
+  for (const k of cols.slice(lead)) fr += COLS[k].money ? COLS[k].foot(ft) : '<td></td>';
+  fr += `<td class="num cg" title="Total Paying across all selected codes, on every page">${money(amountTotal())}<div class="cell-sub">selected</div></td><td></td></tr>`;
+  $('#fpFoot').innerHTML = V.ordered.length ? fr : '';
+}
+function addRowHtml(e, N) {
+  if (e.signedOff) return `<tr class="add-row"><td></td><td colspan="${N - 1}" class="muted">This encounter is closed. Codes can’t be added here.</td></tr>`;
+  const d = st.addDraft[e.id] || (st.addDraft[e.id] = { type: 'CPT4', code: '', qty: 1 });
+  const cat = d.type === 'CPT4' ? CPT : RX;
+  const item = d.code ? cat[d.code] : null;
+  const total = item ? item[1] * d.qty : 0;
+  return `<tr class="add-row"><td></td>
+    <td colspan="${N - 3}"><div class="add-inline">
+      <select data-input="addType" data-id="${e.id}" data-fkey="at-${e.id}" aria-label="Code type for new order on ${esc(e.ref)}"><option value="CPT4" ${d.type === 'CPT4' ? 'selected' : ''}>CPT4 procedure</option><option value="Pharmacy" ${d.type === 'Pharmacy' ? 'selected' : ''}>Pharmacy</option></select>
+      <select data-input="addCode" data-id="${e.id}" data-fkey="ac-${e.id}" aria-label="Code for new order on ${esc(e.ref)}"><option value="">Add code…</option>${Object.entries(cat).map(([k, v]) => `<option value="${k}" ${k === d.code ? 'selected' : ''}>${k} – ${esc(v[0])}</option>`).join('')}</select>
+      <label class="ctl"><span>Qty</span><input type="number" min="1" max="999" step="1" data-input="addQty" data-id="${e.id}" data-fkey="aq-${e.id}" value="${d.qty}" aria-label="Quantity for new order"></label>
+      ${d.type === 'Pharmacy' && item ? `<span class="hint">Stock <span class="stock" title="Stock on hand (display only)">${item[2]}</span></span>` : ''}
+      ${item ? `<span>${money(item[1])} each · total <b>${money(total)}</b></span>` : ''}
+      <span class="hint">Adding a code is an order, not a payment.</span></div></td>
+    <td></td>
+    <td><button class="icon-btn" data-act="addCode" data-id="${e.id}" data-fkey="ab-${e.id}" aria-label="Add code to encounter ${esc(e.ref)}" title="Add code" style="color:var(--accent)">${icon('i-plus')}</button></td></tr>`;
+}
+
+/* ---------- column manager ---------- */
+let cmOpen = false, cmDrag = null;
+function renderColMgr() {
+  const m = $('#colMgr');
+  m.hidden = !cmOpen;
+  if (!cmOpen) return;
+  const fk = document.activeElement && m.contains(document.activeElement) ? document.activeElement.dataset.cmkey : null;
+  const order = colPref.order;
+  m.innerHTML = `<h3 id="cmTitle">Columns</h3><span class="hint">Drag rows or use the arrows to change the order. Untick a column to hide it.</span>
+    <div class="pinned">Select checkbox · always first</div>
+    <ul>${order.map((k, i) => { const c = COLS[k]; return `<li draggable="true" data-ck="${k}"><span class="grip" aria-hidden="true">⠿</span>
+      <label><input type="checkbox" data-cmchk="${k}" data-cmkey="chk-${k}" ${colPref.hidden.has(k) ? '' : 'checked'} ${c.locked ? 'disabled' : ''}> ${esc(c.label)}${c.locked ? ' <span class="lock">always shown</span>' : ''}</label>
+      <button class="icon-btn" data-cmmv="${k}" data-dir="-1" data-cmkey="up-${k}" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(c.label)} earlier" title="Move earlier">↑</button>
+      <button class="icon-btn" data-cmmv="${k}" data-dir="1" data-cmkey="dn-${k}" ${i === order.length - 1 ? 'disabled' : ''} aria-label="Move ${esc(c.label)} later" title="Move later">↓</button></li>`; }).join('')}</ul>
+    <div class="pinned">Current: Paying · always last</div>
+    <div class="cm-f" style="justify-content:space-between;align-items:center"><span class="hint" style="margin:0" aria-live="polite">${colSavedAt ? 'Saved' : 'Saves automatically'} for ${esc(userName(CUR_USER))}</span><button class="btn small" data-cmreset data-cmkey="reset">Reset to default</button></div>`;
+  if (fk) { const el = m.querySelector(`[data-cmkey="${fk}"]`); (el && !el.disabled ? el : m.querySelector('[data-cmchk]:not([disabled])'))?.focus(); }
+  positionColMgr();
+}
+function positionColMgr() {
+  const b = $('#btnCols'), m = $('#colMgr');
+  if (!b || m.hidden) return;
+  const r = b.getBoundingClientRect();
+  m.style.top = Math.max(8, Math.min(r.bottom + 6, innerHeight - m.offsetHeight - 8)) + 'px';
+  m.style.left = Math.max(8, Math.min(r.right - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
+}
+function setColMgr(open) {
+  cmOpen = open; renderTable(); renderColMgr();
+  if (open) $('#colMgr').querySelector('[data-cmchk]:not([disabled])')?.focus(); else $('#btnCols')?.focus();
+}
+function moveCol(k, to) {
+  const o = colPref.order.filter(x => x !== k); o.splice(Math.max(0, Math.min(to, o.length)), 0, k);
+  colPref.order = o; saveCols(); renderTable(); renderColMgr();
+}
+
+/* ---------- prepayment view ---------- */
+function renderPrepay() {
+  const led = S.history.filter(t => t.purpose === 'Pre pay' || t.purpose === 'Redeem payment').sort((a, b) => b.at - a.at);
+  const ins = led.filter(t => t.purpose === 'Pre pay'), outs = led.filter(t => t.purpose === 'Redeem payment');
+  const coll = ins.reduce((a, t) => a + t.total, 0), used = outs.reduce((a, t) => a + t.total, 0);
+  const last = ins[0], shown = led.slice(0, st.ppShow);
+  let rows = '';
+  for (const t of shown) {
+    const isIn = t.purpose === 'Pre pay';
+    const encRefs = [...new Set(t.allocations.map(a => a.encRef))];
+    const applied = isIn ? '<span class="muted">Added to prepayment</span>' :
+      `${t.allocations.length} code${t.allocations.length === 1 ? '' : 's'} in ${encRefs.length} encounter${encRefs.length === 1 ? '' : 's'}<div class="hint">${esc(encRefs.slice(0, 3).join(', '))}${encRefs.length > 3 ? ` +${encRefs.length - 3} more` : ''}</div>`;
+    const note = [t.detail, t.comment].filter(Boolean).map(esc).join('<br>');
+    rows += `<tr><td>${fmtDT(t.at)}</td><td>${t.id}${t.historical ? '' : ' <span class="tag new">Saved now</span>'}</td>
+      <td>${isIn ? 'Advance collected' : 'Applied to charges'}</td><td>${isIn ? esc(t.method) : '<span class="muted">No new money</span>'}</td>
+      <td class="num ${isIn ? 'plus' : ''}">${isIn ? '+' + money(t.total) : ''}</td><td class="num minus">${isIn ? '' : '−' + money(t.total)}</td>
+      <td class="num"><b>${money(t.prepayAfter)}</b></td><td>${applied}</td><td>${note || '<span class="muted">—</span>'}</td>
+      <td><button class="btn small" data-pprint="${t.id}">${icon('i-print')}Receipt</button></td></tr>`;
+  }
+  $('#prepayView').innerHTML = `<div class="pp-head"><h2 id="ppTitle">Prepayment history</h2><span class="hint">Advance money held for this patient at this facility. Pre pay adds to it. Redeem payment uses it on charges.</span></div>
+    <div class="pp-sum">
+      <div class="pp-card"><span class="k">Collected to date</span><span class="v">${money(coll)}</span><div class="s">${ins.length} advance${ins.length === 1 ? '' : 's'}</div></div>
+      <div class="pp-card"><span class="k">Used on charges</span><span class="v">${money(used)}</span><div class="s">${outs.length} redemption${outs.length === 1 ? '' : 's'}</div></div>
+      <div class="pp-card now"><span class="k">Available now</span><span class="v">${money(S.prepay)}</span><div class="s">${st.prepayAmount ? `${money(S.prepay + st.prepayAmount)} after this pre pay` : 'Enter an Amount above to add more'}</div></div>
+      <div class="pp-card"><span class="k">Last advance</span><span class="v">${last ? money(last.total) : '—'}</span><div class="s">${last ? `${fmtDate(last.at)} · ${esc(last.method)}` : 'None yet'}</div></div>
+    </div>
+    ${led.length ? `<div style="overflow:auto;border:1px solid var(--line)"><table class="ht"><thead><tr><th>Date</th><th>Reference</th><th>Type</th><th>Method</th><th class="num">Collected</th><th class="num">Used</th><th class="num">Available after</th><th>Applied to</th><th>Detail / comment</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="pp-more"><span class="hint">Showing ${shown.length} of ${led.length} entries</span>${led.length > shown.length ? `<button class="btn small" data-ppmore>Show ${Math.min(10, led.length - shown.length)} more</button>` : ''}</div>`
+    : '<p class="empty">No prepayment has been collected for this patient yet.</p>'}`;
+}
+function renderPager() {
+  const p = V.pages, cur = st.page, n = V.ordered.length;
+  const nums = [];
+  for (let i = 1; i <= p; i++) if (i === 1 || i === p || Math.abs(i - cur) <= 2) nums.push(i); else if (nums[nums.length - 1] !== '…') nums.push('…');
+  $('#pager').innerHTML = `<span>${n ? `Showing ${V.start + 1}–${Math.min(V.start + st.pageSize, n)} of ${n} encounters` : 'No encounters'}</span>
+    <span class="pages"><button class="btn small" data-page="${cur - 1}" ${cur <= 1 ? 'disabled' : ''}>Previous</button>
+    ${nums.map(x => x === '…' ? '<span class="muted">…</span>' : `<button class="btn small" data-page="${x}" ${x === cur ? 'aria-current="page"' : ''} aria-label="Page ${x}">${x}</button>`).join('')}
+    <button class="btn small" data-page="${cur + 1}" ${cur >= p ? 'disabled' : ''}>Next</button></span>
+    <span class="spacer"></span>
+    <label class="ctl"><span>Encounters per page</span><select id="pageSize">${[10, 25, 50, 100].map(s => `<option ${s === st.pageSize ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+    <span class="hint">Changing page or expanding rows keeps your selection and amounts.</span>`;
+}
+let payVisible = true;
+function renderSticky() {
+  const bar = $('#stickyBar');
+  const show = !payVisible && !$('#frontPayView').hidden && (st.sel.size > 0 || (st.purpose === 'prepay' && st.prepayAmount > 0));
+  bar.hidden = !show;
+  if (show) bar.innerHTML = `<span>${esc(collapsedText())}</span><span class="spacer"></span>
+    <button class="btn small" data-sticky="top">Go to payment entry</button>
+    <button class="btn small primary" data-sticky="save" ${st.saving ? 'disabled' : ''}>Save</button>`;
+}
+
+/* ---------- history ---------- */
+/* ---------- transaction history: month list + details ---------- */
+const TTYPE = t => t.purpose === 'Insurance payment' ? 'ins' : t.purpose === 'Pre pay' ? 'prepay' : t.purpose === 'Redeem payment' ? 'redeem' : 'patient';
+const TLABEL = { patient: 'Patient payment', ins: 'Insurance payment', prepay: 'Advance (pre pay)', redeem: 'Redeemed from prepayment' };
+const monthName = k => `${MONL[+k.slice(5, 7) - 1]} ${k.slice(0, 4)}`;
+const sessOf = t => S.sessions.find(x => x.id === t.sessionId);
+const sumOf = list => list.reduce((x, t) => x + t.total, 0);
+function allocByEnc(t) {
+  const m = new Map();
+  for (const a of t.allocations) { if (!m.has(a.encId)) m.set(a.encId, { ref: a.encRef, dos: a.dos, care: a.careSetting || '', amount: 0, codes: [] }); const g = m.get(a.encId); g.amount += a.amount; g.codes.push(a); }
+  return [...m.values()];
+}
+function renderHistory() {
+  const H = st.h;
+  $('#histPrepay').textContent = money(S.prepay);
+  if (document.activeElement !== $('#hFrom')) $('#hFrom').value = H.from;
+  if (document.activeElement !== $('#hTo')) $('#hTo').value = H.to;
+  const bad = !!(H.from && H.to && H.from > H.to);
+  $('#hErr').hidden = !bad; $('#hErr').textContent = bad ? 'From must be on or before To.' : '';
+  const a = H.from ? parseKey(H.from).getTime() : -Infinity, b = H.to ? addDays(parseKey(H.to), 1).getTime() - 1 : Infinity;
+  const inRange = bad ? [] : S.history.filter(t => t.at >= a && t.at <= b);
+  const months = new Map();
+  for (const t of inRange) { const k = dayKey(t.at).slice(0, 7); if (!months.has(k)) months.set(k, []); months.get(k).push(t); }
+  const keys = [...months.keys()].sort().reverse();
+  if (!keys.includes(H.month)) { H.month = keys[0] || null; H.page = 1; }
+  const partial = k => { const y = +k.slice(0, 4), m = +k.slice(5, 7) - 1; return a > new Date(y, m, 1).getTime() || b < new Date(y, m + 1, 1).getTime() - 1; };
+  $('#hMonths').innerHTML = `<div class="hm-cap">${keys.length} month${keys.length === 1 ? '' : 's'} · newest first · amounts are new money</div>` +
+    (keys.length ? keys.map(k => { const list = months.get(k); return `<button class="hm ${k === H.month ? 'on' : ''}" data-hmonth="${k}" ${k === H.month ? 'aria-current="true"' : ''}>
+      <span class="hm-l">${monthName(k)}</span><span class="hm-v">${money(sumOf(list.filter(t => t.newMoney)))}</span>
+      <span class="hm-s">${list.length} transaction${list.length === 1 ? '' : 's'}${partial(k) ? ' · part of month (date range)' : ''}</span></button>`; }).join('')
+    : '<p class="hint" style="padding:12px">No transactions in this date range.</p>');
+  const d = $('#hDetail');
+  if (!H.month) { d.innerHTML = '<p class="empty">No transactions to show. Widen or clear the date range.</p>'; return; }
+  const list = months.get(H.month).slice().sort((x, y) => y.at - x.at);
+  const by = m => sumOf(list.filter(t => t.newMoney && t.method === m));
+  const newAll = sumOf(list.filter(t => t.newMoney)), newIns = sumOf(list.filter(t => TTYPE(t) === 'ins')), red = sumOf(list.filter(t => !t.newMoney));
+  const cnt = { all: list.length }; list.forEach(t => { cnt[TTYPE(t)] = (cnt[TTYPE(t)] || 0) + 1; });
+  const rowsAll = list.filter(t => H.type === 'all' || TTYPE(t) === H.type);
+  const per = 25, pages = Math.max(1, Math.ceil(rowsAll.length / per)); if (H.page > pages) H.page = pages;
+  const rows = rowsAll.slice((H.page - 1) * per, H.page * per);
+  const card = (k, v, sub, cls = '') => `<div class="pp-card ${cls}"><span class="k">${k}</span><span class="v">${money(v)}</span>${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+  let h = `<h3>${monthName(H.month)}${partial(H.month) ? ' <span class="hint">(part of month, from the date range)</span>' : ''}</h3>
+    <div class="pp-sum">
+      ${card('New money received', newAll, `Patient ${money(newAll - newIns)} · Insurance ${money(newIns)}`, 'now')}
+      ${card('Cash', by('Cash'))}${card('Electronic', by('Electronic'))}${card('Cheque', by('Cheque'), 'Insurance')}${card('EFT', by('EFT'), 'Insurance')}
+      ${card('Redeemed from prepayment', red, 'Not new money')}
+    </div>
+    <div class="chips" role="group" aria-label="Transaction type">${[['all', 'All'], ['patient', 'Patient payments'], ['ins', 'Insurance payments'], ['prepay', 'Advances'], ['redeem', 'Redeemed']].map(([k, l]) =>
+      `<button class="chip" data-htype="${k}" aria-pressed="${H.type === k}">${l} (${cnt[k] || 0})</button>`).join('')}</div>`;
+  if (!rows.length) h += '<p class="hint">No transactions of this type in this month.</p>';
+  else {
+    h += `<div style="overflow:auto;border:1px solid var(--line)"><table class="ht"><thead><tr><th style="width:36px"></th><th>Date</th><th>Reference</th><th>Type</th><th>From</th><th>Method</th><th>Collected by</th><th class="num">Amount</th><th>Applied to</th><th></th></tr></thead><tbody>`;
+    for (const t of rows) {
+      const open = H.open.has(t.id), groups = allocByEnc(t), ss = sessOf(t), ty = TTYPE(t);
+      h += `<tr><td><button class="exp" data-hact="toggle" data-id="${t.id}" aria-expanded="${open}" aria-label="${open ? 'Hide' : 'Show'} details for ${t.id}">${open ? '−' : '+'}</button></td>
+        <td>${fmtDT(t.at)}</td><td>${t.id}${t.historical ? '' : ' <span class="tag new">Saved now</span>'}${ss && ss.status === 'approved' ? ' <span class="tag lock" title="Its cash session is approved, so it can’t be edited">Day closed</span>' : ''}</td>
+        <td>${TLABEL[ty]}</td><td>${ty === 'ins' ? esc(t.payerName) : 'Patient'}</td><td>${t.newMoney ? esc(t.method) : '<span class="muted">No new money</span>'}</td>
+        <td>${esc(userName(t.user))}</td><td class="num"><b>${money(t.total)}</b></td>
+        <td>${groups.length ? `${groups.length} encounter${groups.length === 1 ? '' : 's'}` : '<span class="muted">Added to prepayment</span>'}</td>
+        <td><button class="btn small" data-hact="print" data-id="${t.id}">${icon('i-print')}Receipt</button></td></tr>`;
+      if (open) {
+        const showCodes = H.codes.has(t.id);
+        const meta = [t.reference ? 'Reference: ' + esc(t.reference) : '', t.detail ? 'Detail: ' + esc(t.detail) : '', t.comment ? 'Comment: ' + esc(t.comment) : '', ss ? `Cash session ${ss.id}` : ''].filter(Boolean).join(' · ');
+        h += `<tr class="alloc"><td colspan="10">${groups.length ? `<table class="inner"><thead><tr><th>Encounter</th><th>Service date</th><th>Care setting</th><th class="num">Amount</th></tr></thead><tbody>
+          ${groups.map(g => `<tr class="encl"><td>${esc(g.ref)}</td><td>${fmtDT(g.dos)}</td><td>${esc(g.care)}</td><td class="num">${money(g.amount)}</td></tr>` +
+            (showCodes ? g.codes.map(c => `<tr class="codeln"><td>${esc(c.codeLabel)}</td><td colspan="2">${esc(c.desc)}</td><td class="num">${money(c.amount)}</td></tr>`).join('') : '')).join('')}</tbody></table>
+          <button class="btn link" data-hact="codes" data-id="${t.id}" aria-expanded="${showCodes}">${showCodes ? 'Hide codes' : 'Show codes'}</button>`
+          : `<p class="hint">Advance added to prepayment${t.prepayAfter != null ? `. Available after: ${money(t.prepayAfter)}` : ''}.</p>`}
+          ${meta ? `<p class="hint">${meta}</p>` : ''}</td></tr>`;
+      }
+    }
+    h += '</tbody></table></div>';
+    if (pages > 1) h += `<div class="pp-more"><button class="btn small" data-hpage="${H.page - 1}" ${H.page <= 1 ? 'disabled' : ''}>Previous</button><span class="hint">Page ${H.page} of ${pages} · ${rowsAll.length} transactions</span><button class="btn small" data-hpage="${H.page + 1}" ${H.page >= pages ? 'disabled' : ''}>Next</button></div>`;
+  }
+  d.innerHTML = h;
+}
+
+/* ---------- cash sessions and day close ---------- */
+const DRAWER = [['cash', 'Cash in drawer (including float)'], ['cheque', 'Cheques'], ['electronic', 'Card / electronic (terminal total)']];
+const STATUS = { open: 'Open', submitted: 'Waiting for approval', approved: 'Approved', returned: 'Sent back' };
+const curSession = (u = CUR_USER) => S.sessions.find(x => x.user === u && (x.status === 'open' || x.status === 'returned'));
+const sessionTxns = x => S.history.filter(t => t.sessionId === x.id).sort((a, b) => a.at - b.at);
+function sessionExpected(x) {
+  const tx = sessionTxns(x), sum = m => sumOf(tx.filter(t => t.newMoney && t.method === m));
+  return { cash: x.float + sum('Cash'), cheque: sum('Cheque'), electronic: sum('Electronic'), eft: sum('EFT'), redeemed: sumOf(tx.filter(t => !t.newMoney)), n: tx.length };
+}
+function varianceOf(x, cnt) {
+  const ex = sessionExpected(x), d = {}; let any = false, tot = 0;
+  for (const [k] of DRAWER) { d[k] = cnt[k] - ex[k]; tot += d[k]; if (d[k]) any = true; }
+  return { ex, d, any, tot };
+}
+const diffCell = v => `<td class="num ${v < 0 ? 'var-neg' : v > 0 ? 'var-pos' : 'var-ok'}">${v === 0 ? '$0.00' : (v > 0 ? '+' : '−') + money(Math.abs(v))}${v < 0 ? ' short' : v > 0 ? ' over' : ''}</td>`;
+function compareTable(x, cnt) {
+  const { ex, d, tot } = varianceOf(x, cnt);
+  return `<div style="overflow:auto;border:1px solid var(--line)"><table class="ht"><thead><tr><th>Method</th><th class="num">System expects</th><th class="num">Counted</th><th class="num">Difference</th></tr></thead><tbody>
+    ${DRAWER.map(([k, l]) => `<tr><td>${l}${k === 'cash' ? `<div class="hint">Float ${money(x.float)} + cash taken ${money(ex.cash - x.float)}</div>` : ''}</td><td class="num">${money(ex[k])}</td><td class="num">${money(cnt[k])}</td>${diffCell(d[k])}</tr>`).join('')}
+    <tr class="encl"><td>Total</td><td class="num">${money(ex.cash + ex.cheque + ex.electronic)}</td><td class="num">${money(cnt.cash + cnt.cheque + cnt.electronic)}</td>${diffCell(tot)}</tr>
+    <tr><td colspan="4" class="hint">Not in the drawer, so not counted: insurance EFT ${money(ex.eft)} (checked against the bank) and prepayment redeemed ${money(ex.redeemed)} (no money changed hands).</td></tr>
+    </tbody></table></div>`;
+}
+function txTable(x) {
+  const tx = sessionTxns(x);
+  if (!tx.length) return '<p class="hint">No transactions in this session.</p>';
+  return `<div style="overflow:auto;border:1px solid var(--line);margin-top:6px"><table class="ht"><thead><tr><th>Time</th><th>Reference</th><th>Type</th><th>Method</th><th class="num">Amount</th><th>In drawer count</th></tr></thead><tbody>
+    ${tx.map(t => `<tr><td>${fmtDT(t.at)}</td><td>${t.id}</td><td>${TLABEL[TTYPE(t)]}</td><td>${t.newMoney ? esc(t.method) : '<span class="muted">No new money</span>'}</td><td class="num">${money(t.total)}</td>
+      <td>${!t.newMoney || t.method === 'EFT' ? '<span class="muted">No</span>' : 'Yes'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function parsedCount() {
+  const out = {};
+  for (const [k, l] of DRAWER) { const v = parseMoney(st.cash.cnt[k]); if (typeof v === 'object' || String(st.cash.cnt[k]).trim() === '') return { err: `Enter an amount for “${l}”. Use 0 if there is none.` }; out[k] = v; }
+  return out;
+}
+function renderCash() {
+  const C = st.cash, me = CUR_USER, cur = curSession();
+  $('#cashTitle').textContent = isManager() ? 'Cash sessions' : 'Close my day';
+  $('#cashBand').innerHTML = `${esc(FACILITY)} · <b>${esc(userName(me))}</b> (${USERS[me].role})`;
+  let h = '<div class="card">';
+  if (!cur) {
+    const last = S.sessions.filter(x => x.user === me).sort((a, b) => b.openedAt - a.openedAt)[0];
+    h += `<h3>My cash session</h3><p class="hint">You have no open session. One opens when you take your first payment, or you can open one now.</p>
+      ${last ? `<p>Last session ${last.id}: <span class="stat ${last.status}">${STATUS[last.status]}</span></p>` : ''}
+      <button class="btn" data-cact="open">Open a session now</button>`;
+  } else {
+    const n = sessionTxns(cur).length;
+    h += `<h3>My cash session ${cur.id} <span class="stat ${cur.status}">${STATUS[cur.status]}</span></h3>
+      <p class="hint">Opened ${fmtDT(cur.openedAt)} · opening float ${money(cur.float)} · ${n} transaction${n === 1 ? '' : 's'}. In production this covers every patient you took payments from.</p>`;
+    if (cur.status === 'returned') h += `<div class="msg warn"><div class="grow"><b>Sent back by ${esc(userName(cur.reviewedBy))}:</b> ${esc(cur.reviewNote)} Count again and resubmit.</div></div>`;
+    h += `<p style="margin:12px 0 0"><b>Step 1. Count your drawer.</b> <span class="hint">The system’s figures stay hidden until you compare, so they can’t influence your count.</span></p>
+      <div class="count-grid">${DRAWER.map(([k, l]) => `<label>${l}<input data-cnt="${k}" inputmode="decimal" placeholder="0.00" value="${esc(C.cnt[k])}" ${C.compared ? 'disabled' : ''}></label>`).join('')}</div>`;
+    if (C.err) h += `<div class="msg err" role="alert">${esc(C.err)}</div>`;
+    if (!C.compared) h += '<button class="btn primary" data-cact="compare">Compare with system</button>';
+    else {
+      const cnt = parsedCount(), v = varianceOf(cur, cnt);
+      h += `<p style="margin:14px 0 6px"><b>Step 2. Check the difference.</b></p>${compareTable(cur, cnt)}`;
+      h += v.any ? `<div class="row" style="margin-top:10px"><label class="ctl"><span>Reason for the difference</span><select data-cfield="reason"><option value="">Choose…</option>${['Counting error', 'Change given incorrectly', 'Payment saved with the wrong method', 'Missing receipt', 'Other'].map(r => `<option ${C.reason === r ? 'selected' : ''}>${r}</option>`).join('')}</select></label></div>
+          <label class="ctl" style="display:block;margin-top:8px"><span>Note ${C.reason === 'Other' ? '(required)' : '(optional)'}</span><textarea data-cfield="note">${esc(C.note)}</textarea></label>`
+        : '<p class="var-ok" style="margin-top:10px">Your drawer balances.</p>';
+      h += `<div class="row" style="margin-top:12px"><button class="btn" data-cact="recount">Recount</button><button class="btn primary" data-cact="submit">Submit for approval</button></div>
+        <details style="margin-top:12px"><summary>Transactions in this session (${n})</summary>${txTable(cur)}</details>`;
+    }
+  }
+  h += '</div>';
+  const list = (isManager() ? S.sessions : S.sessions.filter(x => x.user === me)).slice().sort((a, b) => b.openedAt - a.openedAt);
+  h += `<div class="card"><h3>${isManager() ? 'All cash sessions at this facility' : 'My recent sessions'}</h3>
+    ${isManager() ? '<p class="hint">Review sessions waiting for approval. You can’t approve your own session.</p>' : ''}
+    <div style="overflow:auto;border:1px solid var(--line)"><table class="ht"><thead><tr><th>Session</th><th>Staff</th><th>Opened</th><th>Status</th><th class="num">System expects</th><th class="num">Counted</th><th class="num">Difference</th><th></th></tr></thead><tbody>
+    ${list.map(x => {
+      const live = x.status === 'open' || x.status === 'returned';
+      const ex = sessionExpected(x), et = ex.cash + ex.cheque + ex.electronic;
+      const ct = x.count ? x.count.cash + x.count.cheque + x.count.electronic : null;
+      const canAct = !live && (isManager() || x.user === me);
+      return `<tr class="${C.reviewId === x.id ? 'picked' : ''}"><td>${x.id}</td><td>${esc(userName(x.user))}</td><td>${fmtDT(x.openedAt)}</td><td><span class="stat ${x.status}">${STATUS[x.status]}</span></td>
+        <td class="num">${live ? '<span class="muted">Hidden until counted</span>' : money(et)}</td><td class="num">${ct == null ? '—' : money(ct)}</td>${ct == null ? '<td class="num">—</td>' : diffCell(ct - et)}
+        <td>${canAct ? `<button class="btn small" data-cact="view" data-id="${x.id}">${C.reviewId === x.id ? 'Close' : isManager() && x.status === 'submitted' ? 'Review' : 'View'}</button>` : ''}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  const rv = C.reviewId && S.sessions.find(x => x.id === C.reviewId);
+  if (rv && rv.count) {
+    const own = rv.user === me;
+    h += `<div style="margin-top:12px"><h3>Session ${rv.id} · ${esc(userName(rv.user))}</h3>
+      <p class="hint">Submitted ${rv.submittedAt ? fmtDT(rv.submittedAt) : '—'}${rv.reviewedBy ? ` · ${rv.status === 'approved' ? 'approved' : 'reviewed'} by ${esc(userName(rv.reviewedBy))} ${fmtDT(rv.reviewedAt)}` : ''}</p>
+      ${compareTable(rv, rv.count)}
+      ${rv.reason ? `<p><b>Reason:</b> ${esc(rv.reason)}${rv.note ? ` — ${esc(rv.note)}` : ''}</p>` : ''}
+      <details><summary>Transactions (${sessionTxns(rv).length})</summary>${txTable(rv)}</details>
+      ${isManager() && rv.status === 'submitted' ? (own ? '<p class="hint">This is your own session. Another manager must approve it.</p>'
+        : `<label class="ctl" style="display:block;margin-top:10px"><span>Note to staff (required when sending back)</span><textarea data-cfield="reviewNote">${esc(C.reviewNote)}</textarea></label>
+          <div class="row" style="margin-top:8px"><button class="btn" data-cact="sendback" data-id="${rv.id}">Send back to recount</button><button class="btn primary" data-cact="approve" data-id="${rv.id}">Approve and lock</button></div>`) : ''}
+      ${rv.status === 'approved' ? '<p class="hint">Approved sessions are locked. Mistakes are corrected with a reversal in a later session.</p>' : ''}</div>`;
+  }
+  h += '</div>';
+  $('#cashBody').innerHTML = h;
+}
+function openSessionDlg() {
+  return new Promise(res => {
+    const d = $('#dlgSess');
+    $('#dsFloat').value = '100.00'; $('#dsErr').hidden = true;
+    const done = v => { d.close(); $('#dsOk').onclick = $('#dsCancel').onclick = null; d.oncancel = null; res(v); };
+    $('#dsOk').onclick = () => {
+      const v = parseMoney($('#dsFloat').value);
+      if (typeof v === 'object') { $('#dsErr').textContent = v.err; $('#dsErr').hidden = false; return; }
+      const o = { id: 'CS-' + (++S.seq.sess), user: CUR_USER, openedAt: Date.now(), float: v, status: 'open', count: null, reason: '', note: '', submittedAt: null, reviewedBy: null, reviewedAt: null, reviewNote: '' };
+      S.sessions.push(o); toast(`Cash session ${o.id} opened with a ${money(v)} float.`); done(true);
+    };
+    $('#dsCancel').onclick = () => done(false);
+    d.oncancel = e => { e.preventDefault(); done(false); };
+    d.showModal(); $('#dsFloat').select();
+  });
+}
+async function ensureSession() { return curSession() ? true : openSessionDlg(); }
+const freshCash = () => ({ cnt: { cash: '', cheque: '', electronic: '' }, compared: false, reason: '', note: '', err: '', reviewId: null, reviewNote: '' });
+
+/* ---------- printable documents ---------- */
+function receiptHtml(t) {
+  const enc = new Map();
+  for (const a of t.allocations) { if (!enc.has(a.encId)) enc.set(a.encId, []); enc.get(a.encId).push(a); }
+  let rows = '';
+  for (const [, list] of enc) {
+    rows += `<tr class="encl"><td colspan="3">Encounter ${esc(list[0].encRef)} · ${fmtDT(list[0].dos)}</td></tr>`;
+    rows += list.map(a => `<tr><td>${esc(a.codeLabel)}</td><td>${esc(a.desc)}</td><td class="num">${money(a.amount)}</td></tr>`).join('');
+  }
+  const kind = t.purpose === 'Redeem payment' ? 'Prepayment applied (no new money received)' : t.purpose === 'Pre pay' ? 'Advance payment received' : t.purpose === 'Insurance payment' ? 'Insurance payment received' : 'Payment received';
+  return `<div class="doc"><h1>${esc(FACILITY)}</h1><div>Receipt ${t.id}</div>
+    <div class="meta"><div>Patient: <b>${esc(PATIENT.name)}</b> (${PATIENT.id})</div><div>Date: ${fmtDT(t.at)}</div>
+    <div>Purpose: ${esc(t.purpose)}</div><div>Method: ${esc(t.method)}</div>${t.payerName ? `<div>Received from: ${esc(t.payerName)}</div>` : ''}${t.reference ? `<div>Reference: ${esc(t.reference)}</div>` : ''}<div>Collected by: ${esc(userName(t.user))}</div>${t.detail ? `<div>Detail: ${esc(t.detail)}</div>` : ''}${t.comment ? `<div>Comment: ${esc(t.comment)}</div>` : ''}</div>
+    ${t.allocations.length ? `<table><thead><tr><th>Code</th><th>Description</th><th class="num">Amount</th></tr></thead><tbody>${rows}<tr class="tot"><td colspan="2">${kind}</td><td class="num">${money(t.total)}</td></tr></tbody></table>`
+      : `<table><tbody><tr class="tot"><td>${kind}</td><td class="num">${money(t.total)}</td></tr></tbody></table><p class="note">Not yet applied to any charges.</p>`}
+    ${t.prepayAfter != null ? `<p class="note">Available prepayment after this transaction: ${money(t.prepayAfter)}</p>` : ''}
+    <p class="note">Amounts are in US dollars. Prototype receipt with fictional data.</p></div>`;
+}
+function statementHtml() {
+  const f = st.filters;
+  const scope = [];
+  scope.push('Service date: ' + $('#fDate').selectedOptions[0].textContent + (f.date === 'custom' ? ` (${f.from || 'start'} to ${f.to || 'today'})` : ''));
+  if (f.care.length) scope.push('Care setting: ' + f.care.join(', '));
+  if (f.visit !== 'all') scope.push('Visit category: ' + f.visit);
+  if (f.program !== 'all') scope.push('Program: ' + (f.program === '~none' ? 'No program' : f.program));
+  if (f.q) scope.push(`Search: “${f.q}”`);
+  if (f.avoidZero) scope.push('Settled encounters hidden'); if (f.avoidRx) scope.push('Pharmacy codes hidden'); if (f.patPos) scope.push('Patient balance > 0 only');
+  let rows = '';
+  for (const e of V.ordered) {
+    const t = totals(e.codes);
+    rows += `<tr class="encl"><td>${fmtDT(e.dos)}</td><td colspan="2">${esc(e.ref)} · ${esc(e.visitCategory)} · ${esc(e.careSetting)} · ${esc(e.program || 'No program')}</td><td class="num">${money(t.charge)}</td><td class="num">${money(t.prevPat)}</td><td class="num">${money(t.patBal)}</td><td class="num">${money(t.insBal)}</td></tr>`;
+    rows += V.vis.get(e.id).map(c => `<tr><td></td><td>${esc(c.type)} ${esc(c.code)}</td><td>${esc(c.desc)}</td><td class="num">${money(c.patResp + c.priResp + c.secResp)}</td><td class="num">${money(c.patPaid)}</td><td class="num">${money(patBal(c))}</td><td class="num">${money(insBal(c))}</td></tr>`).join('');
+  }
+  const ft = totals(V.ordered.flatMap(e => e.codes));
+  return `<div class="doc"><h1>${esc(FACILITY)}</h1><div>Statement of charges</div>
+    <div class="meta"><div>Patient: <b>${esc(PATIENT.name)}</b> (${PATIENT.id})</div><div>Printed: ${fmtDT(Date.now())}</div><div style="grid-column:1/-1">Scope: ${esc(scope.join('; '))}</div></div>
+    <table><thead><tr><th>DOS</th><th>Code</th><th>Description</th><th class="num">Charge</th><th class="num">Patient paid</th><th class="num">Patient balance</th><th class="num">Insurance balance</th></tr></thead>
+    <tbody>${rows}<tr class="tot"><td colspan="3">Total for this statement (${V.ordered.length} encounters, full encounter amounts)</td><td class="num">${money(ft.charge)}</td><td class="num">${money(ft.prevPat)}</td><td class="num">${money(ft.patBal)}</td><td class="num">${money(ft.insBal)}</td></tr></tbody></table>
+    <p class="note">Payments shown are money received. US dollars. Prototype statement with fictional data.</p></div>`;
+}
+function openPreview(title, html) { $('#dpTitle').textContent = title; $('#printPreview').innerHTML = html; $('#dlgPrint').showModal(); }
+
+/* ---------- small UI helpers ---------- */
+let msgSeq = 0;
+function pushMsg(type, html) { st.msgs = [{ id: ++msgSeq, type, html }]; }
+function toast(text, action) {
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = `<span>${esc(text)}</span>`;
+  if (action) { const b = document.createElement('button'); b.textContent = action.label; b.onclick = () => { el.remove(); action.fn(); }; el.appendChild(b); }
+  $('#toasts').appendChild(el); setTimeout(() => el.remove(), action ? 9000 : 5000);
+}
+function confirmDlg(title, body, ok, cancel = 'Cancel') {
+  return new Promise(res => {
+    const d = $('#dlgConfirm');
+    $('#dcTitle').textContent = title; $('#dcBody').innerHTML = body; $('#dcOk').textContent = ok; $('#dcCancel').textContent = cancel;
+    const done = v => { d.close(); $('#dcOk').onclick = $('#dcCancel').onclick = null; d.oncancel = null; res(v); };
+    $('#dcOk').onclick = () => done(true); $('#dcCancel').onclick = () => done(false);
+    d.oncancel = e => { e.preventDefault(); done(false); };
+    d.showModal(); $('#dcCancel').focus();
+  });
+}
+
+/* =====================================================================
+   ACTIONS
+   ===================================================================== */
+// Any change that could reorder or hide rows goes through this guard.
+async function changeView(mutate) {
+  if (hasDraft()) {
+    const ok = await confirmDlg('Payment draft in progress',
+      `<p>You have unsaved Paying amounts on ${st.sel.size} selected code${st.sel.size === 1 ? '' : 's'} (${money(amountTotal())}).</p><p>Changing grouping, sorting or filters can change the order used for allocation, so amounts are never moved silently.</p>`,
+      'Clear payment draft and change view', 'Continue editing');
+    if (!ok) { render(); return false; }
+    clearDraft();
+    toast('Payment draft cleared. View changed.');
+  }
+  mutate(); st.page = 1; render(); return true;
+}
+function toggleEnc(e, on) {
+  if (on) eligibleCodes(e).forEach(addSel);
+  else (V.vis.get(e.id) || []).forEach(c => removeSel(c.id));
+  delete st.errors['pe-' + e.id]; st.amountErr = '';
+}
+async function onTopAmount() {
+  const v = parseMoney($('#inAmount').value);
+  st.amountErr = '';
+  if (typeof v === 'object') { st.amountErr = v.err; render(); return; }
+  if (st.purpose === 'prepay') { st.prepayAmount = v; render(); return; }
+  if (!st.sel.size) {
+    if (v > 0) st.amountErr = 'Select at least one encounter or code first. Only Pre pay can be saved without a selection.';
+    render(); return;
+  }
+  const bal = selectedBalance();
+  if (v > bal) { st.amountErr = `Amount can’t be more than the selected ${dueLabel()} (${money(bal)}).${st.from === 'Patient' ? ' Extra money isn’t turned into prepayment automatically.' : ''}`; render(); return; }
+  if (st.purpose === 'redeem' && v > S.prepay) { st.amountErr = `Redemption can’t be more than available prepayment (${money(S.prepay)}).`; render(); return; }
+  if (v === amountTotal() && !st.manual) { render(); return; }
+  if (st.manual) {
+    const ok = await confirmDlg('Recalculate all Paying amounts?', `<p>You edited Paying amounts by hand. Spreading ${money(v)} across the selected codes in display order will replace those edits.</p>`, 'Recalculate', 'Keep my amounts');
+    if (!ok) { render(); return; }
+  }
+  distribute(allocationOrder(), v); st.manual = false; st.errors = {};
+  render();
+}
+function onPayEnc(input) {
+  const e = EIDX.get(input.dataset.id), key = 'pe-' + e.id;
+  const codes = (V.vis.get(e.id) || []).filter(c => st.sel.has(c.id));
+  const v = parseMoney(input.value); delete st.errors[key];
+  if (typeof v === 'object') { st.errors[key] = v.err; render(); return; }
+  const cap = codes.reduce((a, c) => a + dueBal(c), 0);
+  if (v > cap) { st.errors[key] = `Max ${money(cap)} for the selected codes.`; render(); return; }
+  distribute(codes, v); codes.forEach(c => delete st.errors['pc-' + c.id]);
+  st.manual = true; st.amountErr = ''; render();
+}
+function onPayCode(input) {
+  const { c } = IDX.get(input.dataset.id), key = 'pc-' + c.id;
+  const v = parseMoney(input.value); delete st.errors[key];
+  if (typeof v === 'object') { st.errors[key] = v.err; render(); return; }
+  if (v > dueBal(c)) { st.errors[key] = `Max ${money(dueBal(c))}.`; render(); return; }
+  st.pay.set(c.id, v); st.manual = true; st.amountErr = ''; render();
+}
+async function setPurpose(p) {
+  if (p === st.purpose) return;
+  if (p === 'prepay' && st.sel.size) {
+    const ok = await confirmDlg('Switch to Pre pay?', '<p>Pre pay is an advance and isn’t applied to encounters. Switching clears the selected items and their Paying amounts.</p>', 'Clear selection and switch', 'Keep current payment');
+    if (!ok) { render(); return; }
+    clearDraft();
+  }
+  if (st.purpose === 'prepay' && st.prepayAmount > 0) {
+    const ok = await confirmDlg(`Switch to ${purposeLabel(p)}?`, `<p>The prepayment amount (${money(st.prepayAmount)}) will be cleared. ${purposeLabel(p)} needs selected encounters or codes.</p>`, 'Clear amount and switch', 'Stay on Pre pay');
+    if (!ok) { render(); return; }
+    st.prepayAmount = 0;
+  }
+  st.purpose = p; st.amountErr = ''; st.msgs = []; render();
+}
+function validate() {
+  const errs = [];
+  if (st.from === 'Insurance' && !st.ref.trim()) errs.push('Enter the cheque, EFT or remittance reference for this insurance payment.');
+  if (st.purpose === 'prepay') { if (!(st.prepayAmount > 0)) errs.push('Enter a positive Amount for the prepayment.'); return errs; }
+  if (!st.sel.size) { errs.push('Select at least one encounter or code. Payments are never applied to all charges automatically.'); return errs; }
+  const total = amountTotal();
+  if (total <= 0) errs.push('Enter a positive Amount, or Paying amounts on the selected codes.');
+  const typed = parseMoney($('#inAmount').value);
+  if (typeof typed === 'number' && typed !== total) errs.push(`Amount (${money(typed)}) doesn’t match the Paying total (${money(total)}). Press Enter in Amount to recalculate.`);
+  if (Object.keys(st.errors).length || st.amountErr) errs.push('Fix the highlighted amounts first.');
+  for (const id of st.sel) {
+    const x = IDX.get(id);
+    if (!x) { errs.push('A selected code no longer exists. Clear the selection and try again.'); continue; }
+    if ((st.pay.get(id) || 0) > dueBal(x.c)) errs.push(`${x.e.ref} ${x.c.code}: Paying is more than its ${dueLabel()} (${money(dueBal(x.c))}).`);
+  }
+  if (st.purpose === 'redeem' && total > S.prepay) errs.push(`Redemption can’t be more than available prepayment (${money(S.prepay)}).`);
+  return errs;
+}
+async function save(andPrint) {
+  if (st.saving) return; // duplicate-click guard
+  const errs = validate();
+  if (errs.length) { pushMsg('err', `<b>Payment not saved.</b><ul>${errs.map(e => `<li>${esc(e)}</li>`).join('')}</ul>`); if (st.payCollapsed) st.payCollapsed = false; render(); return; }
+  if (!await ensureSession()) return;
+  st.saving = true; render();
+  await sleep(450); // simulated round trip
+  // Recheck balances immediately before applying.
+  const recheck = validate();
+  if (recheck.length) { st.saving = false; pushMsg('err', `<b>Balances changed. Payment not saved.</b><ul>${recheck.map(e => `<li>${esc(e)}</li>`).join('')}</ul>`); render(); return; }
+  const now = Date.now(), detail = $('#inDetail').value.trim(), comment = $('#inComment').value.trim();
+  let t;
+  if (st.purpose === 'prepay') {
+    S.prepay += st.prepayAmount;
+    t = { id: 'RCPT-' + (++S.seq.txn), at: now, purpose: 'Pre pay', method: st.method, total: st.prepayAmount, newMoney: true, detail, comment, allocations: [], prepayAfter: S.prepay };
+    st.prepayAmount = 0;
+  } else {
+    const allocations = [], ins = st.from === 'Insurance';
+    for (const c of allocationOrder()) {
+      const amt = st.pay.get(c.id) || 0; if (!amt) continue;
+      if (ins) { if (st.payer === 'sec') c.secPaid += amt; else c.priPaid += amt; c.insPaid += amt; c.insExpected = Math.max(0, c.insExpected - amt); }
+      else c.patPaid += amt; // actual patient payment (includes applied prepayment); insurance untouched
+      allocations.push(allocOf(IDX.get(c.id).e, c, amt));
+    }
+    const total = allocations.reduce((a, x) => a + x.amount, 0);
+    const redeem = st.purpose === 'redeem';
+    if (redeem) S.prepay -= total;
+    t = { id: 'RCPT-' + (++S.seq.txn), at: now, purpose: redeem ? 'Redeem payment' : ins ? 'Insurance payment' : 'Encounter payment', method: redeem ? 'Prepayment (no new money)' : st.method, total, newMoney: !redeem, detail, comment, allocations, prepayAfter: redeem ? S.prepay : undefined,
+      payerName: ins ? payerName() : null, reference: ins ? st.ref.trim() : '' };
+    if (ins) st.ref = '';
+    clearDraft();
+  }
+  t.user = CUR_USER; t.sessionId = curSession().id;
+  S.history.push(t); st.lastTxnId = t.id; st.saving = false;
+  $('#inDetail').value = ''; $('#inComment').value = '';
+  const encN = new Set(t.allocations.map(a => a.encId)).size;
+  pushMsg('ok', `<b>${esc(t.purpose)} ${t.id} saved: ${money(t.total)}.</b> ${t.allocations.length ? `Applied to ${t.allocations.length} code${t.allocations.length === 1 ? '' : 's'} in ${encN} encounter${encN === 1 ? '' : 's'}.` : 'Added to available prepayment.'}${t.newMoney ? '' : ' No new money was received.'}
+    <button class="btn link" data-goto="history">View in transaction history</button> <button class="btn link" data-receipt="${t.id}">Print receipt</button>`);
+  render();
+  if (andPrint) openPreview(`Receipt ${t.id}`, receiptHtml(t));
+}
+async function deleteItem(kind, id) {
+  if (kind === 'enc') {
+    const e = EIDX.get(id), r = delReason(e);
+    if (r) { toast(r); return; }
+    if (!await confirmDlg(`Delete encounter ${e.ref}?`, '<p>This removes the new encounter and its draft orders from the sample.</p>', 'Delete encounter')) return;
+    e.codes.forEach(c => removeSel(c.id));
+    S.encounters = S.encounters.filter(x => x !== e); st.expanded.delete(id);
+    toast(`Encounter ${e.ref} deleted.`);
+  } else {
+    const { e, c } = IDX.get(id), r = delReason(e, c);
+    if (r) { toast(r); return; }
+    if (!await confirmDlg(`Delete ${c.type} ${c.code}?`, `<p>Removes this draft order from encounter ${esc(e.ref)}. Charges update.</p>`, 'Delete code')) return;
+    removeSel(c.id); e.codes = e.codes.filter(x => x !== c);
+    toast(`${c.code} deleted from encounter ${e.ref}. Charges updated.`);
+  }
+  rebuildIndex(); render();
+}
+function addCode(encId) {
+  const e = EIDX.get(encId), d = st.addDraft[encId];
+  if (!d || !d.code) { toast('Choose a code to add.'); const el = document.querySelector(`[data-fkey="ac-${encId}"]`); el && el.focus(); return; }
+  const qty = Math.max(1, Math.min(999, parseInt(d.qty, 10) || 1));
+  const c = makeCode(e, d.type, d.code, qty, d.type === 'Pharmacy' ? SPLIT.RX : SPLIT.NEW, { isNew: true });
+  c.line = Math.max(0, ...e.codes.map(x => x.line)) + 1;
+  c.insExpected = c.priResp + c.secResp;
+  e.codes.push(c); rebuildIndex();
+  st.addDraft[encId] = { type: d.type, code: '', qty: 1 };
+  toast(`Added ${c.type} ${c.code} to encounter ${e.ref}. This is an order, not a payment. Charges updated.`);
+  render();
+}
+function onQty(input) {
+  const { c } = IDX.get(input.dataset.id);
+  const q = parseInt(input.value, 10);
+  if (!(q >= 1 && q <= 999)) { toast('Quantity must be a whole number from 1 to 999.'); render(); return; }
+  c.qty = q; recalcNewCode(c);
+  if (st.sel.has(c.id)) {
+    if (dueBal(c) <= 0) removeSel(c.id);
+    else if ((st.pay.get(c.id) || 0) > dueBal(c)) { st.pay.set(c.id, dueBal(c)); toast(`Paying for ${c.code} lowered to its new ${dueLabel()}.`); }
+  }
+  render();
+}
+function openAddEncounter() {
+  const now = new Date(); now.setSeconds(0, 0);
+  $('#neDate').value = `${dayKey(now.getTime())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  $('#neCare').innerHTML = CARE_SETTINGS.map(c => `<option>${esc(c)}</option>`).join('');
+  $('#neProgram').innerHTML = '<option value="">No program</option>' + PROGRAMS.map(p => `<option>${esc(p)}</option>`).join('');
+  $('#neErr').hidden = true;
+  $('#dlgEnc').showModal();
+}
+function createEncounter() {
+  const v = $('#neDate').value;
+  if (!v) { $('#neErr').textContent = 'Enter a service date and time.'; $('#neErr').hidden = false; return; }
+  const dos = new Date(v).getTime();
+  if (isNaN(dos)) { $('#neErr').textContent = 'Enter a valid service date and time.'; $('#neErr').hidden = false; return; }
+  const e = { id: 'e' + (++S.seq.enc), ref: String(S.seq.ref += 3), dos, careSetting: $('#neCare').value, visitCategory: $('#neVisit').value, program: $('#neProgram').value || null, source: 'Front Pay', signedOff: false, isNew: true, codes: [] };
+  S.encounters.push(e); rebuildIndex(); st.expanded.add(e.id);
+  $('#dlgEnc').close();
+  V = computeView();
+  const pos = V.ordered.indexOf(e);
+  if (pos >= 0) {
+    st.page = Math.floor(pos / st.pageSize) + 1; render();
+    toast(`Encounter ${e.ref} added. Add codes in its row.`);
+    const el = document.querySelector(`[data-fkey="ac-${e.id}"]`); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); }
+  } else {
+    render();
+    toast(`Encounter ${e.ref} added, but the current filters hide it.`, { label: 'Show it', fn: () => changeView(() => { st.filters = defaultFilters(); st.filters.q = e.ref; }) });
+  }
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+function bind() {
+  $$('input[name=purpose]').forEach(r => r.addEventListener('change', () => setPurpose(r.value)));
+  const amt = $('#inAmount');
+  amt.addEventListener('change', onTopAmount);
+  amt.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); amt.blur(); } });
+  $('#payToggle').addEventListener('click', () => { st.payCollapsed = !st.payCollapsed; render(); });
+  $('#paySection').addEventListener('click', e => {
+    if (e.target.closest('#btnReview')) { st.reviewOpen = !st.reviewOpen; render(); }
+    if (e.target.closest('#btnClearSel')) { clearDraft(); render(); }
+    const dm = e.target.closest('[data-dismiss]'); if (dm) { st.msgs = st.msgs.filter(m => m.id !== +dm.dataset.dismiss); render(); }
+    if (e.target.closest('[data-goto="history"]')) showHistory(true);
+    const rc = e.target.closest('[data-receipt]'); if (rc) { const t = S.history.find(x => x.id === rc.dataset.receipt); t && openPreview(`Receipt ${t.id}`, receiptHtml(t)); }
+  });
+  $('#btnSave').addEventListener('click', () => save(false));
+  $('#btnSavePrint').addEventListener('click', () => save(true));
+  $('#btnBack').addEventListener('click', () => toast('Back returns to the previous blueEHR screen. That screen is outside this prototype.'));
+  $('#btnAddEnc').addEventListener('click', openAddEncounter);
+  $('#neCancel').addEventListener('click', () => $('#dlgEnc').close());
+  $('#neOk').addEventListener('click', createEncounter);
+  // print
+  const menu = $('#printMenu'), mb = $('#btnPrintMenu');
+  const closeMenu = () => { menu.hidden = true; mb.setAttribute('aria-expanded', 'false'); };
+  mb.addEventListener('click', e => { e.stopPropagation(); const open = menu.hidden; menu.hidden = !open; mb.setAttribute('aria-expanded', String(open)); if (open) menu.querySelector('button').focus(); });
+  menu.addEventListener('keydown', e => {
+    const items = $$('button', menu), i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    if (e.key === 'Escape') { closeMenu(); mb.focus(); }
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.menu-wrap')) closeMenu(); if (cmOpen && !e.target.closest('#colMgr') && !e.target.closest('#btnCols')) setColMgr(false); });
+  const printLast = () => {
+    const t = S.history.find(x => x.id === st.lastTxnId);
+    if (!t) { toast('No payment saved in this session yet. Print a statement, or choose a receipt from invoice history.'); return; }
+    openPreview(`Receipt ${t.id}`, receiptHtml(t));
+  };
+  $('#btnPrint').addEventListener('click', printLast);
+  menu.addEventListener('click', e => {
+    const b = e.target.closest('[data-print]'); if (!b) return; closeMenu();
+    if (b.dataset.print === 'last') printLast();
+    if (b.dataset.print === 'statement') openPreview('Statement of filtered charges', statementHtml());
+    if (b.dataset.print === 'history') showHistory(true);
+  });
+  $('#dpClose').addEventListener('click', () => $('#dlgPrint').close());
+  $('#dpPrint').addEventListener('click', () => {
+    $('#printArea').innerHTML = $('#printPreview').innerHTML;
+    document.body.classList.add('printing');
+    try { window.print(); } catch (_) { toast('Printing is blocked in this preview window. Open the file directly in a browser to print.'); }
+    setTimeout(() => document.body.classList.remove('printing'), 300);
+  });
+  // history
+  $('#btnHistory').addEventListener('click', () => showHistory(true));
+  $('#btnHistBack').addEventListener('click', () => showHistory(false));
+  const H = () => st.h;
+  $('#hFrom').addEventListener('change', e => { H().from = e.target.value; H().page = 1; renderHistory(); });
+  $('#hTo').addEventListener('change', e => { H().to = e.target.value; H().page = 1; renderHistory(); });
+  $('#hClear').addEventListener('click', () => { H().from = H().to = ''; H().page = 1; renderHistory(); });
+  $('#hMonths').addEventListener('click', e => { const b = e.target.closest('[data-hmonth]'); if (!b) return; H().month = b.dataset.hmonth; H().page = 1; renderHistory(); $(`[data-hmonth="${b.dataset.hmonth}"]`)?.focus(); });
+  $('#hDetail').addEventListener('click', e => {
+    const ty = e.target.closest('[data-htype]'); if (ty) { H().type = ty.dataset.htype; H().page = 1; renderHistory(); $(`[data-htype="${ty.dataset.htype}"]`)?.focus(); return; }
+    const pg = e.target.closest('[data-hpage]'); if (pg && !pg.disabled) { H().page = +pg.dataset.hpage; renderHistory(); return; }
+    const b = e.target.closest('[data-hact]'); if (!b) return;
+    const id = b.dataset.id, set = b.dataset.hact === 'toggle' ? H().open : b.dataset.hact === 'codes' ? H().codes : null;
+    if (set) { set.has(id) ? set.delete(id) : set.add(id); renderHistory(); $(`[data-hact="${b.dataset.hact}"][data-id="${id}"]`)?.focus(); return; }
+    if (b.dataset.hact === 'print') { const t = S.history.find(x => x.id === id); openPreview(`Receipt ${t.id}`, receiptHtml(t)); }
+  });
+  // cash sessions
+  $('#btnCash').addEventListener('click', () => showView('cash'));
+  $('#btnCashBack').addEventListener('click', () => { showView('front'); $('#btnCash').focus(); });
+  $('#cashBody').addEventListener('input', e => {
+    const k = e.target.dataset.cnt; if (k) { st.cash.cnt[k] = e.target.value; return; }
+    const f = e.target.dataset.cfield; if (f) st.cash[f] = e.target.value;
+  });
+  $('#cashBody').addEventListener('change', e => { if (e.target.dataset.cfield === 'reason') { st.cash.reason = e.target.value; renderCash(); } });
+  $('#cashBody').addEventListener('click', async e => {
+    const b = e.target.closest('[data-cact]'); if (!b) return;
+    const C = st.cash, act = b.dataset.cact, cur = curSession();
+    if (act === 'open') { await ensureSession(); renderCash(); return; }
+    if (act === 'compare') { const c = parsedCount(); C.err = c.err || ''; if (!c.err) C.compared = true; renderCash(); return; }
+    if (act === 'recount') { C.compared = false; C.err = ''; renderCash(); $('[data-cnt="cash"]')?.focus(); return; }
+    if (act === 'submit') {
+      const cnt = parsedCount(), v = varianceOf(cur, cnt);
+      if (v.any && !C.reason) { C.err = 'Choose a reason for the difference before submitting.'; renderCash(); return; }
+      if (v.any && C.reason === 'Other' && !C.note.trim()) { C.err = 'Add a note explaining the difference.'; renderCash(); return; }
+      Object.assign(cur, { count: cnt, reason: v.any ? C.reason : '', note: v.any ? C.note.trim() : '', status: 'submitted', submittedAt: Date.now() });
+      st.cash = freshCash(); renderCash();
+      toast(`Session ${cur.id} submitted for approval. Your next payment opens a new session.`); return;
+    }
+    if (act === 'view') { C.reviewId = C.reviewId === b.dataset.id ? null : b.dataset.id; C.reviewNote = ''; renderCash(); return; }
+    const x = S.sessions.find(y => y.id === b.dataset.id);
+    if (act === 'approve' && x) { Object.assign(x, { status: 'approved', reviewedBy: CUR_USER, reviewedAt: Date.now() }); C.reviewId = null; renderCash(); toast(`Session ${x.id} approved and locked.`); return; }
+    if (act === 'sendback' && x) {
+      if (!C.reviewNote.trim()) { toast('Add a note telling staff what to check.'); $('[data-cfield="reviewNote"]')?.focus(); return; }
+      Object.assign(x, { status: 'returned', reviewedBy: CUR_USER, reviewedAt: Date.now(), reviewNote: C.reviewNote.trim() }); C.reviewId = null; C.reviewNote = ''; renderCash();
+      toast(`Session ${x.id} sent back to ${userName(x.user)}.`);
+    }
+  });
+  // signed-in user (demo switch)
+  $('#selUser').innerHTML = Object.entries(USERS).map(([k, u]) => `<option value="${k}">${esc(u.name)} · ${u.role}</option>`).join('');
+  $('#selUser').addEventListener('change', async e => {
+    const u = e.target.value;
+    if (st.sel.size || st.prepayAmount) {
+      if (!await confirmDlg('Switch user?', '<p>The unsaved payment draft will be cleared.</p>', 'Clear and switch', 'Stay')) { e.target.value = CUR_USER; return; }
+      clearDraft(); st.prepayAmount = 0;
+    }
+    CUR_USER = u; loadCols(u); colSavedAt = 0; st.cash = freshCash();
+    $('#btnCashLbl').textContent = isManager() ? 'Cash sessions' : 'Close my day';
+    render(); toast(`Signed in as ${userName(u)} (demo). Column layout loaded for this user.`);
+  });
+  // filters (guarded)
+  const F = () => st.filters;
+  $('#fDate').addEventListener('change', e => changeView(() => { F().date = e.target.value; }));
+  $('#fFrom').addEventListener('change', e => changeView(() => { F().from = e.target.value; }));
+  $('#fTo').addEventListener('change', e => changeView(() => { F().to = e.target.value; }));
+  $('#fCare').addEventListener('change', e => { const v = e.target.value, on = e.target.checked; changeView(() => { F().care = on ? [...F().care, v] : F().care.filter(x => x !== v); }); });
+  $('#fVisit').addEventListener('change', e => changeView(() => { F().visit = e.target.value; }));
+  $('#fProgram').addEventListener('change', e => changeView(() => { F().program = e.target.value; }));
+  const doSearch = () => { const v = $('#fSearch').value.trim(); if (v === F().q) return; changeView(() => { F().q = v; }); };
+  $('#fSearch').addEventListener('change', doSearch);
+  $('#fSearch').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
+  $('#btnSearch').addEventListener('click', doSearch);
+  $('#fAvoidZero').addEventListener('change', e => changeView(() => { F().avoidZero = e.target.checked; }));
+  $('#fAvoidRx').addEventListener('change', e => changeView(() => { F().avoidRx = e.target.checked; }));
+  $('#fPatPos').addEventListener('change', e => changeView(() => { F().patPos = e.target.checked; }));
+  $('#btnClearFilters').addEventListener('click', () => changeView(() => { st.filters = defaultFilters(); }));
+  $('#vGroup').addEventListener('change', e => changeView(() => { st.group = e.target.value; }));
+  // selection buttons
+  // header: select-all, sort icons, column manager
+  $('#fpHead').addEventListener('change', e => {
+    if (e.target.id !== 'chkPage') return;
+    const on = e.target.checked, before = st.sel.size;
+    V.ordered.forEach(en => toggleEnc(en, on));
+    if (on) toast(`${st.sel.size - before} code${st.sel.size - before === 1 ? '' : 's'} selected across all ${V.pages} page${V.pages === 1 ? '' : 's'} of the current filter.`);
+    render();
+  });
+  $('#fpHead').addEventListener('click', e => {
+    const sb = e.target.closest('[data-sort]');
+    if (sb) {
+      const k = sb.dataset.sort, cur = st.sort;
+      const next = k === 'dos' ? (cur === 'dos_asc' ? 'dos_desc' : 'dos_asc') : (cur === k + '_desc' ? k + '_asc' : k + '_desc');
+      changeView(() => { st.sort = next; }).then(() => $(`[data-sort="${k}"]`)?.focus());
+      return;
+    }
+    if (e.target.closest('#btnCols')) setColMgr(!cmOpen);
+  });
+  const cm = $('#colMgr');
+  cm.addEventListener('change', e => {
+    const k = e.target.dataset.cmchk; if (!k) return;
+    e.target.checked ? colPref.hidden.delete(k) : colPref.hidden.add(k);
+    saveCols(); renderTable(); renderColMgr();
+  });
+  cm.addEventListener('click', e => {
+    e.stopPropagation(); // the list re-renders, so outside-click checks must not see this click
+    const mv = e.target.closest('[data-cmmv]');
+    if (mv && !mv.disabled) { const k = mv.dataset.cmmv; moveCol(k, colPref.order.indexOf(k) + +mv.dataset.dir); return; }
+    if (e.target.closest('[data-cmreset]')) { colPref = { order: [...DEFAULT_COLS], hidden: new Set() }; saveCols(); renderTable(); renderColMgr(); }
+  });
+  cm.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); setColMgr(false); } });
+  cm.addEventListener('dragstart', e => { const li = e.target.closest('li[data-ck]'); if (!li) return; cmDrag = li.dataset.ck; li.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', cmDrag); });
+  cm.addEventListener('dragover', e => { const li = e.target.closest('li[data-ck]'); if (!li || !cmDrag) return; e.preventDefault(); $$('li', cm).forEach(x => x.classList.toggle('drag-over', x === li)); });
+  cm.addEventListener('dragleave', e => { const li = e.target.closest('li[data-ck]'); if (li) li.classList.remove('drag-over'); });
+  cm.addEventListener('drop', e => { const li = e.target.closest('li[data-ck]'); if (!li || !cmDrag) return; e.preventDefault(); const to = colPref.order.filter(x => x !== cmDrag).indexOf(li.dataset.ck); const k = cmDrag; cmDrag = null; moveCol(k, to); });
+  cm.addEventListener('dragend', () => { cmDrag = null; $$('li', cm).forEach(x => x.classList.remove('dragging', 'drag-over')); });
+  addEventListener('resize', positionColMgr); $('#tableWrap').addEventListener('scroll', positionColMgr); addEventListener('scroll', positionColMgr);
+  // advanced filters
+  $('#btnAdv').addEventListener('click', () => { st.advOpen = !st.advOpen; render(); if (st.advOpen) $('#fDate').focus(); });
+  // payment from
+  // Payment from / payer: balances differ, so an unsaved draft must be cleared first.
+  const clearForSwitch = async what => {
+    if (!st.sel.size) return true;
+    const ok = await confirmDlg(`Switch to ${what}?`, `<p>The selected codes and Paying amounts were set against the ${dueLabel()}. Switching clears them.</p>`, 'Clear selection and switch', 'Keep current payment');
+    if (ok) clearDraft();
+    return ok;
+  };
+  $$('input[name=from]').forEach(r => r.addEventListener('change', async () => {
+    if (r.value === 'Insurance' && st.purpose !== 'ep') { await setPurpose('ep'); if (st.purpose !== 'ep') { render(); return; } }
+    if (!await clearForSwitch(r.value === 'Insurance' ? 'insurance' : 'patient')) { render(); return; }
+    st.from = r.value; st.msgs = []; st.amountErr = ''; render();
+  }));
+  $('#payerRadios').addEventListener('change', async e => {
+    const v = e.target.value;
+    if (!await clearForSwitch(v === 'sec' ? 'the secondary payer' : 'the primary payer')) { render(); return; }
+    st.payer = v; st.amountErr = ''; render();
+  });
+  $('#methodRadios').addEventListener('change', e => { st.method = e.target.value; render(); });
+  $('#inRef').addEventListener('input', e => { st.ref = e.target.value; });
+  // prepayment view
+  $('#prepayView').addEventListener('click', e => {
+    if (e.target.closest('[data-ppmore]')) { st.ppShow += 10; render(); return; }
+    const pb = e.target.closest('[data-pprint]'); if (pb) { const t = S.history.find(x => x.id === pb.dataset.pprint); t && openPreview(`Receipt ${t.id}`, receiptHtml(t)); }
+  });
+  // pager
+  $('#pager').addEventListener('click', e => { const b = e.target.closest('[data-page]'); if (!b || b.disabled) return; st.page = +b.dataset.page; render(); $('#tableWrap').scrollTop = 0; });
+  $('#pager').addEventListener('change', e => { if (e.target.id === 'pageSize') { st.pageSize = +e.target.value; st.page = 1; render(); } });
+  // table delegation
+  const body = $('#fpBody');
+  body.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const id = b.dataset.id;
+    switch (b.dataset.act) {
+      case 'expand': st.expanded.has(id) ? st.expanded.delete(id) : st.expanded.add(id); render(); break;
+      case 'legacy': toast('This icon is an existing blueEHR action. Its function still needs confirmation and it isn’t part of payment logic.'); break;
+      case 'rx': { const { c } = IDX.get(id); toast(`${c.desc}: ${c.stock} in stock (display only). Dispensing is outside this prototype.`); break; }
+      case 'delEnc': deleteItem('enc', id); break;
+      case 'delCode': deleteItem('code', id); break;
+      case 'addCode': addCode(id); break;
+      case 'clearFilters': changeView(() => { st.filters = defaultFilters(); }); break;
+    }
+  });
+  body.addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.act === 'selGroup') { const gr = V.groups.find(x => String(x.key) === t.dataset.gkey); if (gr) gr.encs.forEach(en => toggleEnc(en, t.checked)); st.amountErr = ''; render(); return; }
+    if (t.dataset.act === 'selEnc') { toggleEnc(EIDX.get(t.dataset.id), t.checked); render(); return; }
+    if (t.dataset.act === 'selCode') { const { c } = IDX.get(t.dataset.id); t.checked ? addSel(c) : removeSel(c.id); st.amountErr = ''; render(); return; }
+    const inp = t.dataset.input; if (!inp) return;
+    // defer so focus can settle on the next field before re-render
+    setTimeout(() => {
+      if (inp === 'payEnc') onPayEnc(t);
+      else if (inp === 'payCode') onPayCode(t);
+      else if (inp === 'qty') onQty(t);
+      else if (inp === 'addType') { st.addDraft[t.dataset.id] = { type: t.value, code: '', qty: 1 }; render(); }
+      else if (inp === 'addCode') { st.addDraft[t.dataset.id].code = t.value; render(); }
+      else if (inp === 'addQty') { st.addDraft[t.dataset.id].qty = Math.max(1, parseInt(t.value, 10) || 1); render(); }
+    }, 0);
+  });
+  body.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.pay-in, .qty-in')) { e.preventDefault(); e.target.blur(); } });
+  // sticky bar
+  $('#stickyBar').addEventListener('click', e => {
+    const b = e.target.closest('[data-sticky]'); if (!b) return;
+    if (b.dataset.sticky === 'top') { window.scrollTo({ top: 0 }); st.payCollapsed = false; render(); $('#inAmount').focus(); }
+    if (b.dataset.sticky === 'save') save(false);
+  });
+  new IntersectionObserver(([en]) => { payVisible = en.isIntersecting; renderSticky(); }).observe($('#paySection'));
+  // demo
+  $('#demoFind').addEventListener('click', () => changeView(() => { st.filters = defaultFilters(); st.filters.q = 'DEMO-100'; st.group = 'month'; st.sort = 'dos_asc'; ['DEMO-1001', 'DEMO-1002', 'DEMO-1003', 'DEMO-1004'].forEach(r => { const e = S.encounters.find(x => x.ref === r); e && st.expanded.add(e.id); }); }));
+  $('#demoSelect').addEventListener('click', async () => {
+    const ok = await changeView(() => { st.filters = defaultFilters(); st.filters.q = 'DEMO-100'; st.group = 'month'; st.sort = 'dos_asc'; });
+    if (!ok) return;
+    if (st.purpose === 'prepay') { st.purpose = 'ep'; st.prepayAmount = 0; }
+    V = computeView();
+    for (const r of ['DEMO-1001', 'DEMO-1002']) { const e = S.encounters.find(x => x.ref === r); st.expanded.add(e.id); toggleEnc(e, true); }
+    render();
+    toast('DEMO-1001 and DEMO-1002 selected ($2,000.00). Enter 800 in Amount to test allocation.');
+    if (!st.payCollapsed) $('#inAmount').focus();
+  });
+  $('#demoReset').addEventListener('click', async () => {
+    if (!await confirmDlg('Reset demo data?', '<p>Restores the original sample encounters, balances and invoice history. Your session changes and draft are cleared.</p>', 'Reset demo data')) return;
+    buildData(); resetState(); $('#inDetail').value = ''; $('#inComment').value = ''; showView('front'); toast('Demo data reset.');
+  });
+}
+function showView(v) {
+  $('#frontPayView').hidden = v !== 'front'; $('#historyView').hidden = v !== 'history'; $('#cashView').hidden = v !== 'cash';
+  if (cmOpen) { cmOpen = false; renderColMgr(); }
+  if (v === 'history') { renderHistory(); $('#btnHistBack').focus(); }
+  else if (v === 'cash') { renderCash(); $('#btnCashBack').focus(); }
+  else render();
+  renderSticky(); window.scrollTo({ top: 0 });
+}
+function showHistory(on) { showView(on ? 'history' : 'front'); if (!on) $('#btnHistory').focus(); }
+
+/* ---------- prototype notes (outside the workflow) ---------- */
+const NOTES = `
+<h3>Prototype assumptions</h3><ul>
+<li>One patient, one facility. Currency is US dollars for the sample only. Money is stored as integer cents.</li>
+<li>Patient, coverage split, expected amounts and history are fictional. The split is supplied in the sample data; there is no split-configuration engine. New codes use a fixed 20/65/15 split (pharmacy 25/75/0).</li>
+<li>Defaults: all service dates, Avoid zero balance encounters on, Patient balance greater than zero off, group by Month (by service date, newest month at the top), encounters oldest first inside each month, encounter reference breaks ties, codes keep line order.</li>
+<li>Each group header has a checkbox that selects every eligible code in that group on all pages. Paying “last month” is one tick on that month’s header. If the service-date filter cuts a month, the header says which dates are shown.</li>
+<li>Allocation follows the displayed order. With two months selected, a partial payment goes to the newer month first because it sits on top. Tick only the older month to pay it first.</li>
+<li>Care setting is a column and a filter, not a grouping. Service date, Care setting and Visit category sit under Advanced filters; the button shows how many are active.</li>
+<li>Sort with the icons on DOS, Charge and Balance › Patient. The sort applies inside each group.</li>
+<li>Column manager (icon beside Current): reorder by drag or arrows, hide or show columns. Encounter and Balance always show; Select and Paying are fixed. Column settings last for this session only.</li>
+<li>The header checkbox selects all eligible codes in the current filter, on every page. Clear selection sits in the payment summary.</li>
+<li>Payment from Insurance: choose the payer (primary or secondary), method Cheque or EFT, and a required reference. Selection and allocation use that payer’s balance on each code. Redeem payment and Pre pay are hidden. Write-offs, denials and moving a denied amount to the patient are not built yet.</li>
+<li>Column layout saves automatically per signed-in user (no Save button). Use the user switch in the top bar to try it.</li>
+<li>Every payment is tagged with the user and their cash session. Close my day: blind count of cash, cheques and card total, then compare, give a reason for any difference, and submit. Managers review, send back or approve and lock; they can’t approve their own session. Insurance EFT and redemptions are excluded from the drawer.</li>
+<li>Transaction history: months on the left (newest first, amounts are new money), details on the right with a method split, type filter, encounter-level detail and an optional Show codes. Date range From–To, no presets. Redeemed amounts are never counted as new money.</li>
+<li>Pre pay replaces the encounter list with the prepayment history: collected, used, available now, and each advance or redemption with its running balance.</li>
+<li>Weeks run Monday–Sunday. Last 14 days is today plus the previous 13 days. From/To dates are inclusive. Filters use service date, not payment date.</li>
+<li>Zero-balance hiding works at encounter level: hidden only when both patient and insurance balances are zero. Encounters with no codes yet are not treated as settled.</li>
+<li>Residential is read from the recorded visit category, never from the program name (see the Outpatient encounter in “Residential step-down”).</li>
+<li>Prev payments shows only money actually received. Expected insurance amounts are not shown in the list; the sample still keeps them as data and never counts them as received.</li>
+<li>Applied prepayment counts as actual patient payment on the code. Redemption is recorded as use of earlier money, not new cash.</li>
+<li>Draft rules: a grouping, sorting or filter change during a draft asks to continue editing or clear the draft. Editing the top Amount after manual edits asks before replacing them. Paging and expanding never clear the draft.</li>
+<li>Deletion is allowed only for encounters and draft orders added in this session with no recorded payment. Signed-off encounters can’t receive new codes here.</li>
+<li>Print uses the browser print dialog. Receipt and statement layouts are prototype choices.</li></ul>
+<h3>Business rules awaiting confirmation</h3><ul>
+<li>Real source of the patient/insurance responsibility split and the final meaning of the existing Coverage and Prev payments columns.</li>
+<li>Whether zero-balance or paid codes should also be hidden inside a visible encounter.</li>
+<li>Admission or stay filtering (no admission selector is included).</li>
+<li>Whether sign-off should be a condition for taking payment.</li>
+<li>Actual delete permissions and sign-off rules for encounters and codes.</li>
+<li>Exact fields for Add new encounter in the real application.</li>
+<li>Function of the existing green icon beside the encounter reference.</li>
+<li>Final default grouping, sort order and filter defaults.</li>
+<li>Final print options, receipt content and statement content.</li>
+<li>Insurance collection, insurance prepayment and insurance allocation (excluded from this version).</li>
+<li>Currency and number-format rules for each client country.</li></ul>`;
+
+buildData(); resetState(); bind();
+$('#selUser').value = CUR_USER; loadCols(CUR_USER);
+$('#notes').innerHTML = NOTES;
+V = computeView();
+st.expanded.add(V.pageEncs.find(e => totals(e.codes).patBal > 0)?.id);
+render();
+</script>
+</body>
+</html>
