@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="description" content="Inpatient Flow Management — designing a unified inpatient experience for complex hospital operations. Case study by Akhil Ashokan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #060608; color: #F5F5F5; font-family: Poppins, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: #7DD3FC; text-decoration: none; }
+  a:hover { color: #38BDF8; }
+  h1, h2, h3, h4, p { text-wrap: pretty; overflow-wrap: break-word; }
+  ::selection { background: #3B82F6; color: #fff; }
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: #060608; }
+  ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 9px; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } html { scroll-behavior: auto; } }
+</style>
+</helmet>
+
+<div style="position:fixed;top:0;left:0;height:2px;width:100%;z-index:9000">
+  <div ref="{{ progressBar }}" style="height:100%;width:0%;background:linear-gradient(90deg,#1E1B4B,#3B82F6,#38BDF8)"></div>
+</div>
+
+<nav style="position:sticky;top:0;z-index:8000;background:rgba(6,6,8,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:1280px;margin:0 auto;padding:16px clamp(20px,4vw,56px);display:flex;align-items:center;gap:clamp(18px,3vw,40px);justify-content:space-between">
+    <a href="Akhil Ashokan — Portfolio.dc.html" style="display:inline-flex;align-items:center;gap:9px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.6);white-space:nowrap" style-hover="color:#38BDF8"><span>←</span> Portfolio</a>
+    <div ref="{{ navScroll }}" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;padding-bottom:2px">
+      <a href="#overview" data-nav="overview" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Overview</a>
+      <a href="#context" data-nav="context" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Context</a>
+      <a href="#users" data-nav="users" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Users</a>
+      <a href="#exploration" data-nav="exploration" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Exploration</a>
+      <a href="#decisions" data-nav="decisions" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Decisions</a>
+      <a href="#solution" data-nav="solution" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Solution</a>
+      <a href="#outcome" data-nav="outcome" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Outcome</a>
+      <a href="#reflection" data-nav="reflection" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Reflection</a>
+    </div>
+  </div>
+</nav>
+
+<section id="overview" data-screen-label="Overview" style="position:relative;padding:clamp(60px,10vh,120px) clamp(20px,4vw,56px) clamp(70px,11vh,140px);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 70% at 82% 0%,rgba(59,130,246,.16),transparent 60%),radial-gradient(70% 60% at 0% 18%,rgba(30,27,75,.5),transparent 62%)"></div>
+  <div style="position:relative;max-width:820px;margin:0 auto">
+    <p style="margin:0 0 clamp(22px,4vh,38px);font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:rgba(245,245,245,.45)">Case Study · Healthcare · Enterprise EHR</p>
+    <h1 style="margin:0 0 26px;font-size:clamp(36px,5.4vw,72px);font-weight:700;line-height:.98;letter-spacing:-.035em">Inpatient Flow<br><span style="background:linear-gradient(96deg,#F5F5F5,#3B82F6 52%,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">Management</span></h1>
+    <p style="margin:0 0 clamp(36px,6vh,60px);max-width:44ch;font-size:clamp(17px,1.8vw,20px);font-weight:300;line-height:1.5;color:rgba(245,245,245,.72)">Designing a unified inpatient experience for complex hospital operations</p>
+    <p style="margin:0 0 clamp(44px,7vh,72px);max-width:78ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Hospitals manage inpatients across multiple care settings—Hospitalization, ICU, Maternity, Neonatology—with fragmented visibility. Clinicians and administrators lack a single workspace to see patient flow, bed availability, care transitions, and critical actions. This case study documents the design of a dedicated inpatient tracking capability within BlueEHR, bringing unified operational oversight to complex hospital environments.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(44px,7vh,72px)">
+      <div style="background:#060608;padding:26px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Role</p>
+        <p style="margin:0;font-size:16px;font-weight:400;color:#F5F5F5">UX/Product Designer</p>
+      </div>
+      <div style="background:#060608;padding:26px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Client</p>
+        <p style="margin:0;font-size:16px;font-weight:400;color:#F5F5F5">BlueBriX Health (BlueEHR)</p>
+      </div>
+      <div style="background:#060608;padding:26px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Timeline</p>
+        <p style="margin:0;font-size:16px;font-weight:400;color:#F5F5F5">6 months</p>
+      </div>
+      <div style="background:#060608;padding:26px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Status</p>
+        <p style="margin:0;font-size:16px;font-weight:400;color:#38BDF8">Live in Production</p>
+      </div>
+    </div>
+
+    <div data-slot="Final IP Tracker Board — patient list, availability overview, code team assignments, action panels" style="position:relative;aspect-ratio:16/9;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#0C1220,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:28px;margin-bottom:clamp(30px,5vh,48px)">
+      <p style="margin:0;max-width:40ch;text-align:center;font-size:12px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Final IP Tracker Board — patient list, availability overview, code team assignments, action panels</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <span style="font-size:11px;font-weight:400;letter-spacing:.1em;color:rgba(245,245,245,.5);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 14px">Patient movement</span>
+      <span style="font-size:11px;font-weight:400;letter-spacing:.1em;color:rgba(245,245,245,.5);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 14px">Bed management</span>
+      <span style="font-size:11px;font-weight:400;letter-spacing:.1em;color:rgba(245,245,245,.5);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 14px">Care-setting visibility</span>
+      <span style="font-size:11px;font-weight:400;letter-spacing:.1em;color:rgba(245,245,245,.5);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 14px">Clinical coordination</span>
+    </div>
+  </div>
+</section>
+
+<section id="context" data-screen-label="Context" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">Context &amp; Problem</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Why This Capability Mattered</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(56px,8vh,90px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">Managing inpatient flow requires understanding where patients are, what they need, and how to move them across care settings efficiently. Before this capability existed, hospital teams relied on external tools, manual coordination, and incomplete visibility into inpatient operations.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">The Before &amp; After Model</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(56px,8vh,96px)">
+      <div style="background:#060608;padding:clamp(26px,3vw,38px)">
+        <p style="margin:0 0 16px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,245,245,.42)">Before</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Inpatient workflows were distributed across systems and tools—spreadsheets tracked bed status, external applications handled admission queues, transfer decisions happened in person or over the phone.</p>
+      </div>
+      <div style="background:#060608;padding:clamp(26px,3vw,38px)">
+        <p style="margin:0 0 16px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#38BDF8">After</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">A dedicated inpatient capability built directly into BlueEHR unified operational oversight, patient visibility, and care-setting coordination in one workspace.</p>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Core Complexity</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(56px,8vh,96px)">
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">Multiple Care Settings</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Patients move across Hospitalization, ICU, Maternity, and Neonatology—each with different workflows, urgency patterns, and constraints.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">State + Location Separation</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">A patient's status (Waiting, Admitted, Queued for Transfer) is independent from their care setting. Both dimensions matter.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">Operational Density</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Clinicians and administrators need deep visibility into multiple patients, beds, and workflows without context-switching between screens.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">Maternity Complexity</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Maternity patients may spawn newborn records in Neonatology, requiring tracking of both mother and child across separate care settings.</p>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Primary UX Challenge</h3>
+    <div data-reveal="1" style="padding:clamp(28px,3.4vw,44px);border-left:2px solid #3B82F6;background:linear-gradient(100deg,rgba(59,130,246,.12),rgba(59,130,246,0));margin-bottom:clamp(56px,8vh,96px)">
+      <p style="margin:0;max-width:72ch;font-size:15px;font-weight:300;line-height:1.7;color:#F5F5F5">How to present a complex, multi-dimensional operational workspace that remains scannable, actionable, and aligned with clinical and administrative workflows—without requiring extensive training or documentation.</p>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Key Constraints</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;background:rgba(245,245,245,.09)">
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;color:#F5F5F5">Content Density</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Hospital teams expect high information density. Making the board simple can sacrifice operational usefulness.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;color:#F5F5F5">Familiar Interaction Language</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Users already work in BlueEHR. The new capability must use existing interaction patterns.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;color:#F5F5F5">Real-Time Coordination</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Bed management and transfers happen quickly. Actions must be efficient and immediately visible.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(22px,2.6vw,32px)">
+        <h4 style="margin:0 0 14px;font-size:15px;font-weight:600;color:#F5F5F5">Clinical Accountability</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.58)">Every patient action is clinically significant. The UI must reduce errors and support clear decision-making.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="users" data-screen-label="Users" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#818CF8">Users &amp; System</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Users &amp; Patient System Model</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:70ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">The inpatient tracker serves three primary operational roles, each with distinct needs and workflows.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Primary User Roles</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(56px,8vh,96px)">
+      <div style="background:#0B0B10;padding:clamp(24px,2.8vw,34px)">
+        <h4 style="margin:0 0 18px;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#818CF8">Nurses</h4>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:15px;font-weight:300;color:rgba(245,245,245,.58)">
+          <span>Monitor assigned patients</span>
+          <span>Check bed status</span>
+          <span>Track care transitions</span>
+          <span>Update patient status</span>
+        </div>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,2.8vw,34px)">
+        <h4 style="margin:0 0 18px;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#818CF8">Front Desk / Admissions</h4>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:15px;font-weight:300;color:rgba(245,245,245,.58)">
+          <span>Process new admissions</span>
+          <span>Assign beds</span>
+          <span>Monitor admission queue</span>
+          <span>Coordinate bed availability</span>
+        </div>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,2.8vw,34px)">
+        <h4 style="margin:0 0 18px;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#818CF8">Hospital Administrators</h4>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:15px;font-weight:300;color:rgba(245,245,245,.58)">
+          <span>Monitor overall census</span>
+          <span>Track operational flow</span>
+          <span>Identify bottlenecks</span>
+          <span>Manage transfers and discharges</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">The Patient Journey Model</h3>
+    <p data-reveal="1" style="margin:0 0 40px;max-width:70ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.68)">Every inpatient follows a state sequence and can occupy different care settings. These are independent dimensions.</p>
+
+    <div data-reveal="1" data-slot="Patient journey diagram — entry points, state transitions, care-setting options" style="position:relative;aspect-ratio:2/1;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#121030,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:28px;margin-bottom:clamp(44px,6vh,72px)">
+      <p style="margin:0;max-width:40ch;text-align:center;font-size:12px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Patient journey diagram — entry points, state transitions, care-setting options</p>
+    </div>
+
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(50px,7vh,84px)">
+      <div>
+        <h4 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#F5F5F5">Patient States</h4>
+        <p style="margin:0 0 18px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Waiting → IP Admission → Admitted → Queued for Transfer / Queued for Discharge → Discharged</p>
+        <p style="margin:0;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.5)"><strong style="font-weight:500;color:rgba(245,245,245,.7)">Entry points:</strong> ED, Front Desk, OR, Direct/Internal Admission</p>
+      </div>
+      <div>
+        <h4 style="margin:0 0 16px;font-size:16px;font-weight:600;color:#F5F5F5">Care Settings</h4>
+        <p style="margin:0 0 18px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Hospitalization ↔ ICU ↔ Maternity ↔ Neonatology</p>
+        <p style="margin:0;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.5)"><strong style="font-weight:500;color:rgba(245,245,245,.7)">Special case:</strong> Maternity patients may spawn child records that move to Neonatology independently.</p>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 24px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Key Insight</h3>
+    <div data-reveal="1" style="padding:clamp(28px,3.4vw,44px);border-left:2px solid #818CF8;background:linear-gradient(100deg,rgba(129,140,248,.12),rgba(129,140,248,0));margin-bottom:clamp(50px,7vh,84px)">
+      <p style="margin:0;max-width:72ch;font-size:15px;font-weight:300;line-height:1.7;color:#F5F5F5"><strong style="font-weight:600">Patient state and care setting are separate dimensions.</strong> A patient can be "Admitted to ICU" or "Queued for Transfer while in Hospitalization." The board must surface both clearly.</p>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Two Examples</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1px;background:rgba(245,245,245,.09)">
+      <div style="background:#0B0B10;padding:clamp(24px,2.8vw,34px)">
+        <p style="margin:0 0 14px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#818CF8">Scenario 1: Admitted + ICU</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Patient moved from Hospitalization to ICU. They are now "Admitted" and live in "ICU" workspace. All ICU actions apply.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,2.8vw,34px)">
+        <p style="margin:0 0 14px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#818CF8">Scenario 2: Queued for Transfer + Hospitalization</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Patient is "Queued for Transfer" but still assigned to a Hospitalization bed. Admissions must confirm the transfer destination before moving them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="exploration" data-screen-label="Exploration" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#F59E0B">Exploration &amp; Iteration</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">From Dashboard Concept to Operational Workspace</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">Early exploration centered on a traditional dashboard model—charts, metrics, aggregate status. The team quickly realized clinicians and administrators needed <strong style="font-weight:500;color:#F5F5F5">transactional control</strong>, not just visibility. The board evolved into an operational workspace where actions happen directly within the context of the patient list.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 32px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Early Exploration: Dashboard → Workspace</h3>
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(56px,8vh,96px)">
+      <div>
+        <p style="margin:0 0 14px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#F59E0B">Initial Direction (Figma Exploration)</p>
+        <p style="margin:0 0 28px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Started with a card-based dashboard showing high-level metrics and status groups. Stakeholder feedback revealed this lacked actionability—admissions staff needed to assign beds and manage queues from the same view.</p>
+        <div data-slot="Early Figma exploration — dashboard card layout" style="aspect-ratio:4/3;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#1C1408,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:24px">
+          <p style="margin:0;max-width:30ch;text-align:center;font-size:11px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Early Figma exploration — dashboard card layout</p>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 14px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#F59E0B">Wireframe Refinement</p>
+        <p style="margin:0 0 28px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Shifted to a table-based operational view. Patients listed by care setting, with status and actions visible inline. Bed inventory shown as a separate panel. This model aligned with clinical workflows and allowed faster decision-making.</p>
+        <div data-slot="Wireframe exploration — table-based layout with care-setting tabs" style="aspect-ratio:4/3;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#14140F,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:24px">
+          <p style="margin:0;max-width:30ch;text-align:center;font-size:11px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Wireframe exploration — table-based layout with care-setting tabs</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Patient Row Design Iterations</h3>
+    <p data-reveal="1" style="margin:0 0 36px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.68)">The individual patient row needed to balance <strong style="font-weight:500;color:#F5F5F5">compactness</strong> with <strong style="font-weight:500;color:#F5F5F5">actionability</strong>. Early iterations showed all fields at once; later versions collapsed secondary information behind expandable states.</p>
+
+    <div data-reveal="1" style="padding:clamp(28px,3.4vw,44px);border-left:2px solid #F59E0B;background:linear-gradient(100deg,rgba(245,158,11,.1),rgba(245,158,11,0));margin-bottom:clamp(56px,8vh,96px)">
+      <p style="margin:0;max-width:72ch;font-size:15px;font-weight:300;line-height:1.7;color:#F5F5F5"><strong style="font-weight:600">Design principle:</strong> Keep rows compact by default (scannable), but make them expandable to show full context (allergies, medications, care setting history) when needed.</p>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Care-Setting Movement Model</h3>
+    <p data-reveal="1" style="margin:0 0 36px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Exploration revealed that patients regularly move between settings. The board needed to show current setting clearly and make transfers effortless.</p>
+    <div data-reveal="1" data-slot="Exploration diagram — patient flow between care settings" style="aspect-ratio:2/1;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#1C1408,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:28px;margin-bottom:30px">
+      <p style="margin:0;max-width:38ch;text-align:center;font-size:12px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Exploration diagram — patient flow between care settings</p>
+    </div>
+    <p data-reveal="1" style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">This exploration helped the team understand that the board itself wasn't a destination—it was a <strong style="font-weight:500;color:#F5F5F5">launchpad for workflows</strong>. Admissions, bed assignment, transfers, and discharges all originated from the board view.</p>
+  </div>
+</section>
+
+<section id="decisions" data-screen-label="Decisions" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#34D399">Decisions &amp; Rationale</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Design Decisions</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(56px,8vh,96px);max-width:70ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">Three core decisions shaped the final experience. Each addressed a specific tension between simplicity and operational reality.</p>
+
+    <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09)">
+      <div data-reveal="1" style="background:#0B0B10;padding:clamp(28px,4vw,52px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 16px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(52,211,153,.55)">01</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Turn a Complex Workflow into a State-Based Board</h3>
+          </div>
+          <div>
+            <p style="margin:0 0 22px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Inpatient flow involves multiple simultaneous activities: admissions, bed assignments, transfers, discharges, care-setting changes. Rather than create separate screens for each, the team opted for a single operational board that surfaces all patient states in one view. Tabs by care setting (Hospitalization, ICU, Maternity, Neonatology) let users filter without losing context.</p>
+            <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.5)"><strong style="font-weight:600;color:#34D399">Benefit:</strong> Administrators see the full census at a glance. Nurses filter to their care setting. Admissions staff can search across all settings to find beds or coordinate transfers.</p>
+          </div>
+        </div>
+      </div>
+      <div data-reveal="1" style="background:#0B0B10;padding:clamp(28px,4vw,52px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 16px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(52,211,153,.55)">02</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Keep the Patient Row Compact, But Make It Actionable</h3>
+          </div>
+          <div>
+            <p style="margin:0 0 22px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Early designs tried to show all patient data in a single row—medications, allergies, vitals, bed number, status, actions. This created visual clutter. The solution was a collapsible row structure: core information (name, bed, status) visible by default; secondary data (medications, allergies, care history) expandable on demand. Actions remain always-visible as an icon row.</p>
+            <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.5)"><strong style="font-weight:600;color:#34D399">Benefit:</strong> The board stays scannable (dozens of patients at once). Clinicians can quickly expand a specific row to get full context before taking action. No modal dialogs required for basic information lookup.</p>
+          </div>
+        </div>
+      </div>
+      <div data-reveal="1" style="background:#0B0B10;padding:clamp(28px,4vw,52px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 16px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(52,211,153,.55)">03</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Reuse the EHR Interaction Language</h3>
+          </div>
+          <div>
+            <p style="margin:0 0 22px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Rather than invent new interaction patterns, the IP Tracker adopted BlueEHR's existing language: buttons, dropdowns, modals, icon actions. This reduced cognitive load for users who already work in the platform daily. New patterns (care-setting tabs, state-based filtering) were introduced thoughtfully, but core interactions felt familiar.</p>
+            <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.5)"><strong style="font-weight:600;color:#34D399">Benefit:</strong> Shorter onboarding. Reduced training effort. Consistency across the BlueEHR ecosystem. Users trust the familiar UI patterns to do what they expect.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solution" data-screen-label="Solution" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">Solution &amp; Implementation</p>
+    <h2 data-reveal="1" style="margin:0 0 30px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">The Final IP Experience</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(44px,6vh,72px);max-width:60ch;font-size:clamp(17px,1.8vw,20px);font-weight:300;line-height:1.6;color:rgba(245,245,245,.72)">A unified operational workspace for monitoring inpatient flow, coordinating care settings and accessing critical patient actions from one place.</p>
+
+    <div data-reveal="1" data-slot="Complete IP Tracker Board — patient list, availability panel, code team assignments, order approvals" style="position:relative;aspect-ratio:16/9;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#0C1220,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:28px">
+      <p style="margin:0;max-width:40ch;text-align:center;font-size:12px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Complete IP Tracker Board — patient list, availability panel, code team assignments, order approvals</p>
+    </div>
+    <p data-reveal="1" style="margin:18px 0 clamp(56px,8vh,96px);max-width:72ch;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)">The IP Tracker Board brings together patient census, bed availability, care-team coordination, and approval workflows in a single, dense operational view.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 36px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Core Features at a Glance</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(60px,9vh,110px)">
+      <div style="background:#09090C;padding:clamp(24px,3vw,38px)">
+        <p style="margin:0 0 14px;font-size:24px;font-weight:600;line-height:1;letter-spacing:-.02em;color:rgba(59,130,246,.6)">01</p>
+        <h4 style="margin:0 0 14px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Operational Overview</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Summary cards show total census by care setting, bed availability by urgency level (Severe, Medium, Low), and a snapshot of assigned care team. Administrators see hospital-wide status at a glance.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(24px,3vw,38px)">
+        <p style="margin:0 0 14px;font-size:24px;font-weight:600;line-height:1;letter-spacing:-.02em;color:rgba(59,130,246,.6)">02</p>
+        <h4 style="margin:0 0 14px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Expandable Patient Context</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Each patient row shows name, bed, diagnosis, and vitals. Click to expand for full details: medications, allergies, admission history, assigned provider. Secondary data stays accessible but hidden by default.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(24px,3vw,38px)">
+        <p style="margin:0 0 14px;font-size:24px;font-weight:600;line-height:1;letter-spacing:-.02em;color:rgba(59,130,246,.6)">03</p>
+        <h4 style="margin:0 0 14px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Patient-Level Actions</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">An icon row on each patient enables transfers, discharges, status updates, order placement, and assignment changes. Actions are contextual—a patient queued for discharge shows different options than one newly admitted.</p>
+      </div>
+      <div style="background:#09090C;padding:clamp(24px,3vw,38px)">
+        <p style="margin:0 0 14px;font-size:24px;font-weight:600;line-height:1;letter-spacing:-.02em;color:rgba(59,130,246,.6)">04</p>
+        <h4 style="margin:0 0 14px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Care-Setting Tabs &amp; Filtering</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Users filter by care setting (All, ICU, Hospitalization, Maternity, Neonatology) or by status (Waiting, IP Admissions, Queued for Transfer, Queued for Discharge). Multiple filters can combine.</p>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Connected Workflows</h3>
+    <p data-reveal="1" style="margin:0 0 clamp(40px,6vh,64px);max-width:70ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.68)">The IP board sits at the center of several critical workflows. Below are the two most common: admission and bed management.</p>
+
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(60px,9vh,110px)">
+      <div>
+        <h4 style="margin:0 0 24px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Admission Workflow</h4>
+        <div data-slot="Admission workflow — patient entry from waiting list into inpatient settings" style="aspect-ratio:4/3;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#0C1220,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:24px">
+          <p style="margin:0;max-width:30ch;text-align:center;font-size:11px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Admission workflow — patient entry from waiting list into inpatient settings</p>
+        </div>
+        <p style="margin:18px 0 0;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)">Patients enter from the waiting list, are confirmed as admitted, and assigned to a care setting. The board shows their journey and surfaces next actions.</p>
+      </div>
+      <div>
+        <h4 style="margin:0 0 24px;font-size:17px;font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Bed Management</h4>
+        <div data-slot="Bed management — availability, occupancy status, bed assignment controls" style="aspect-ratio:4/3;border:1px dashed rgba(245,245,245,.16);border-radius:4px;background:linear-gradient(140deg,#0C1220,#08080D 62%);display:flex;align-items:center;justify-content:center;padding:24px">
+          <p style="margin:0;max-width:30ch;text-align:center;font-size:11px;font-weight:400;line-height:1.7;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,245,.3)">Bed management — availability, occupancy status, bed assignment controls</p>
+        </div>
+        <p style="margin:18px 0 0;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)">Bed availability is visible within the admission context, allowing staff to assign patients to available beds without context-switching.</p>
+      </div>
+    </div>
+
+    <div style="height:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(50px,7vh,84px)"></div>
+
+    <h3 data-reveal="1" style="margin:0 0 18px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Supporting Journeys</h3>
+    <p data-reveal="1" style="margin:0 0 40px;max-width:70ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.55)">Special-case workflows are supported but kept minimal to avoid visual clutter.</p>
+
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:32px">
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Maternity</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">OR / Delivery</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Maternity (Recovery)</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:14px;font-weight:500;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Neonatology (Newborn)</span>
+    </div>
+    <p data-reveal="1" style="margin:0;max-width:72ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.55)">Maternity patients may deliver and spawn a newborn record. The board allows users to track both mother and child, with automatic newborn placement in Neonatology.</p>
+  </div>
+</section>
+
+<section id="outcome" data-screen-label="Outcome" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#C4B5A0">Outcome &amp; Delivery</p>
+    <h2 data-reveal="1" style="margin:0 0 clamp(44px,7vh,76px);font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Outcome &amp; Delivery</h2>
+
+    <p data-reveal="1" style="margin:0 0 clamp(56px,8vh,96px);max-width:64ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.4;letter-spacing:-.02em;color:#F5F5F5">A new inpatient capability was brought into BlueEHR, unifying operational visibility and patient management workflows for hospital teams.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 30px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Delivery Outcomes</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(60px,9vh,110px)">
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <h4 style="margin:0 0 14px;font-size:16px;font-weight:600;color:#38BDF8">Live in Production</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Deployed across multiple BlueEHR facilities. Hospital admissions, nursing, and administrative teams use the IP Tracker daily for inpatient flow coordination.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <h4 style="margin:0 0 14px;font-size:16px;font-weight:600;color:#38BDF8">Unified Operational Workspace</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Eliminated the need for external tools and spreadsheets. Patient data, bed availability, and actions are now in one place within BlueEHR.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <h4 style="margin:0 0 14px;font-size:16px;font-weight:600;color:#38BDF8">Extensible Foundation</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">The board architecture supports additional workflows and care settings. New requirements (pediatrics, long-term care) can be accommodated without redesign.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <h4 style="margin:0 0 14px;font-size:16px;font-weight:600;color:#38BDF8">Alignment with BlueEHR</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Uses existing interaction patterns and design language. Users feel at home in the new capability because it speaks their platform's language.</p>
+      </div>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 30px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Implementation Journey</h3>
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:clamp(44px,6vh,72px)">
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.65);background:rgba(245,245,245,.05);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Stakeholder Demos</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.65);background:rgba(245,245,245,.05);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Developer Clarification</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.65);background:rgba(245,245,245,.05);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:12px 20px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Implementation Review</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:14px;font-weight:600;letter-spacing:.1em;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);border-radius:3px;padding:12px 22px">LIVE</span>
+    </div>
+
+    <p data-reveal="1" style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.55)"><strong style="font-weight:600;color:rgba(245,245,245,.8)">Note on measurement:</strong> Post-launch product metrics (time saved, error reduction, user satisfaction) were not collected during the design and delivery cycle. Future iterations should establish baseline metrics and track impact quantitatively.</p>
+  </div>
+</section>
+
+<section id="reflection" data-screen-label="Reflection" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(85% 60% at 50% 110%,rgba(59,130,246,.16),transparent 62%)"></div>
+  <div style="position:relative;max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#A78BFA">Reflection &amp; Learnings</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Reflection</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(56px,8vh,96px);max-width:70ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">Three lessons from this project inform how I approach complex healthcare product design.</p>
+
+    <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(56px,8vh,96px)">
+      <div data-reveal="1" style="background:#09090C;padding:clamp(28px,4vw,48px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 14px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(167,139,250,.5)">01</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Define Success Earlier</h3>
+          </div>
+          <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The project benefited from clarity on what the IP Tracker would and wouldn't do. Early discussions about "operational workspace, not diagnostic tool" prevented scope creep and kept design focused. Future projects should lock in a crisp definition of success before design begins.</p>
+        </div>
+      </div>
+      <div data-reveal="1" style="background:#09090C;padding:clamp(28px,4vw,48px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 14px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(167,139,250,.5)">02</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Validate at Realistic Scale</h3>
+          </div>
+          <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Testing the board with real data (dozens of patients, multiple care settings, live bed inventory) revealed issues that small prototypes wouldn't show. Scanning 50 patients on a board is cognitively different from scanning 5. Layout, color, and action prominence matter much more at scale.</p>
+        </div>
+      </div>
+      <div data-reveal="1" style="background:#09090C;padding:clamp(28px,4vw,48px)">
+        <div style="display:flex;flex-direction:column;gap:clamp(24px,4vw,56px)">
+          <div>
+            <p style="margin:0 0 14px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;color:rgba(167,139,250,.5)">03</p>
+            <h3 style="margin:0;font-size:clamp(20px,2.2vw,28px);font-weight:500;line-height:1.25;letter-spacing:-.02em;color:#F5F5F5">Model Transitions Earlier</h3>
+          </div>
+          <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Transitions—admission → assigned → queued for transfer → discharge—weren't deeply modeled until development. Earlier state-machine clarity would have prevented design ambiguities and developer back-and-forth. Future projects should diagram state models as a design artifact, not a dev deliverable.</p>
+        </div>
+      </div>
+    </div>
+
+    <p data-reveal="1" style="margin:0 0 clamp(36px,5vh,56px);max-width:52ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.35;letter-spacing:-.025em;background:linear-gradient(96deg,#F5F5F5,#7DD3FC);-webkit-background-clip:text;background-clip:text;color:transparent">In complex healthcare products, the workflow model often matters more than the individual screen.</p>
+
+    <p data-reveal="1" style="margin:0 0 clamp(60px,9vh,110px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.55)">The IP Tracker's success rested not on visual novelty but on a clear, honest model of how patients move through care settings and what information clinicians and administrators need to manage that flow. A beautiful screen that misunderstands the workflow is worse than a dense screen that gets it right.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 18px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Related Case Studies</h3>
+    <p data-reveal="1" style="margin:0 0 36px;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.55)">These projects explore related domains within the BlueEHR ecosystem:</p>
+
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(50px,7vh,84px)">
+      <a href="MAR Case Study.dc.html" style="display:block;background:#09090C;padding:clamp(24px,3vw,36px);color:inherit;transition:background .4s ease" style-hover="background:#0C1018">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px">
+          <h4 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#F5F5F5">MAR</h4>
+          <span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8;white-space:nowrap">Read →</span>
+        </div>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Medication Administration Record — designing safe, efficient medication workflows for nurses and clinical teams.</p>
+      </a>
+      <div style="background:#09090C;padding:clamp(24px,3vw,36px)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px">
+          <h4 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#F5F5F5">Payment Manager</h4>
+          <span style="font-size:9px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,245,245,.4);border:1px solid rgba(245,245,245,.14);border-radius:999px;padding:5px 11px">Coming soon</span>
+        </div>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Revenue cycle coordination — managing provider billing, insurance claims, and financial operations at scale.</p>
+      </div>
+    </div>
+
+    <div data-reveal="1" style="padding:clamp(24px,3vw,36px);border:1px solid rgba(245,245,245,.1);border-radius:4px;background:rgba(245,245,245,.02);margin-bottom:clamp(50px,7vh,84px)">
+      <p style="margin:0;max-width:86ch;font-size:13px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.5)"><strong style="font-weight:600;color:rgba(245,245,245,.75)">Portfolio Note:</strong> This case study presents a recreated portfolio representation of work completed for a live healthcare product. Patient information, operational data and selected UI details have been anonymized, modified or recreated for portfolio presentation. Proprietary implementation details are omitted.</p>
+    </div>
+
+    <a href="Akhil Ashokan — Portfolio.dc.html" style="display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);transition:box-shadow .4s ease" style-hover="box-shadow:0 0 0 1px rgba(56,189,248,.5),0 12px 40px rgba(59,130,246,.3);color:#060608"><span>←</span> Back to portfolio</a>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.progressBar = React.createRef();
+    this.navScroll = React.createRef();
+  }
+
+  renderVals() {
+    return { progressBar: this.progressBar, navScroll: this.navScroll };
+  }
+
+  componentDidMount() {
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.setupReveals();
+    this.setupScroll();
+  }
+
+  componentWillUnmount() {
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._io) this._io.disconnect();
+    if (this._sio) this._sio.disconnect();
+  }
+
+  root() { return this.progressBar.current ? this.progressBar.current.getRootNode() : document; }
+
+  setupReveals() {
+    const nodes = Array.from(this.root().querySelectorAll('[data-reveal]'));
+    if (!nodes.length || this.reduced || !('IntersectionObserver' in window)) return;
+    const vh = window.innerHeight;
+    nodes.forEach((n) => {
+      if (n.getBoundingClientRect().top < vh * 0.92) return;
+      n.style.opacity = '0';
+      n.style.transform = 'translateY(22px)';
+      n.style.transition = 'opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1)';
+    });
+    this._io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.style.opacity = '1';
+        en.target.style.transform = 'translateY(0)';
+        this._io.unobserve(en.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+    nodes.forEach((n) => this._io.observe(n));
+    setTimeout(() => nodes.forEach((n) => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }), 4000);
+  }
+
+  setupScroll() {
+    const bar = this.progressBar.current;
+    const root = this.root();
+    const links = Array.from(root.querySelectorAll('[data-nav]'));
+    const sections = Array.from(root.querySelectorAll('section[id]'));
+    const setActive = (id) => {
+      links.forEach((l) => {
+        const on = l.getAttribute('data-nav') === id;
+        l.style.color = on ? '#F5F5F5' : 'rgba(245,245,245,.45)';
+        l.style.borderBottomColor = on ? '#38BDF8' : 'transparent';
+        l.style.fontWeight = on ? '600' : '500';
+      });
+    };
+    this._onScroll = () => {
+      if (bar) {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0).toFixed(2) + '%';
+      }
+      let cur = sections.length ? sections[0].id : '';
+      sections.forEach((s) => { if (s.getBoundingClientRect().top <= 180) cur = s.id; });
+      setActive(cur);
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+}
+
+</script>
+</body>
+</html>

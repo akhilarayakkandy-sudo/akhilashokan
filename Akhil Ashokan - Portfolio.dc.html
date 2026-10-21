@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="description" content="Akhil Ashokan — Senior UX Designer working on EHR and healthcare applications. Turning complex clinical workflows into clear, intuitive experiences.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #060608; color: #F5F5F5; font-family: Poppins, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: #7DD3FC; text-decoration: none; }
+  a:hover { color: #38BDF8; }
+  h1, h2, h3, h4, p { text-wrap: pretty; overflow-wrap: break-word; }
+  ::selection { background: #3B82F6; color: #fff; }
+  @keyframes om-marquee { from { transform: translate3d(0,0,0) } to { transform: translate3d(-50%,0,0) } }
+  @keyframes om-nudge { 0%,100% { transform: translateY(0); opacity: .4 } 50% { transform: translateY(9px); opacity: 1 } }
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: #060608; }
+  ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 9px; }
+  input, textarea, button { font-family: inherit; }
+  @media (max-width: 767px) {
+    [data-r="nav"] { padding: 16px 20px !important; }
+    [data-r="navlinks"] { gap: 16px !important; }
+    [data-r="hero"] { padding: 104px 20px 40px !important; }
+    [data-r="sec"] { padding: 72px 20px !important; }
+    [data-r="tools"] { padding: 48px 0 !important; }
+    [data-r="sec"] > div { gap: 40px !important; }
+    [data-r="head"] { margin-bottom: 40px !important; }
+    [data-r="h2"] { font-size: 34px !important; }
+    [data-r="h3"] { font-size: 24px !important; }
+    [data-r="lede"] { font-size: 18px !important; }
+    [data-r="card"] { padding: 32px 24px !important; gap: 28px !important; }
+    [data-r="form"] { padding: 24px !important; }
+  }
+  @media (max-width: 479px) {
+    [data-r="nav"] { padding: 14px 18px !important; }
+    [data-r="navsec"] { display: none !important; }
+    [data-r="hero"] { padding: 96px 18px 32px !important; }
+    [data-r="h1"] { font-size: 10vw !important; }
+    [data-r="sec"] { padding: 56px 18px !important; }
+    [data-r="sec"] > div { gap: 32px !important; }
+    [data-r="head"] { margin-bottom: 32px !important; }
+    [data-r="h2"] { font-size: 28px !important; }
+    [data-r="h3"] { font-size: 21px !important; }
+    [data-r="lede"] { font-size: 17px !important; }
+    [data-r="body"] { font-size: 14px !important; line-height: 1.7 !important; }
+    [data-r="card"] { padding: 26px 18px !important; gap: 24px !important; }
+    [data-r="stats"] { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    [data-r="stat"] { padding: 18px 12px !important; }
+    [data-r="statnum"] { font-size: 24px !important; }
+    [data-r="exprow"] { grid-template-columns: 72px minmax(0, 1fr) !important; padding: 20px 0 !important; }
+    [data-r="form"] { padding: 20px !important; }
+    [data-r="footer"] { padding: 32px 18px !important; flex-direction: column; align-items: flex-start !important; }
+    [data-r="footlinks"] { flex-wrap: wrap; gap: 18px !important; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } html { scroll-behavior: auto; } }
+</style>
+</helmet>
+
+<div ref="{{ cursorDot }}" style="position:fixed;top:0;left:0;width:8px;height:8px;border-radius:50%;background:#38BDF8;pointer-events:none;z-index:9999;opacity:0;transform:translate(-50%,-50%)"></div>
+<div ref="{{ cursorRing }}" style="position:fixed;top:0;left:0;width:38px;height:38px;border-radius:50%;border:1px solid rgba(59,130,246,.55);pointer-events:none;z-index:9998;opacity:0;transform:translate(-50%,-50%);transition:width .25s ease,height .25s ease,border-color .25s ease,background .25s ease"></div>
+
+<div style="position:fixed;top:0;left:0;height:2px;width:100%;z-index:9000">
+  <div ref="{{ progressBar }}" style="height:100%;width:0%;background:linear-gradient(90deg,#1E1B4B,#3B82F6,#38BDF8)"></div>
+</div>
+
+<nav data-r="nav" style="position:fixed;top:0;left:0;right:0;z-index:8000;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px clamp(20px,5vw,72px);background:linear-gradient(180deg,rgba(6,6,8,.94),rgba(6,6,8,0));backdrop-filter:blur(6px)">
+  <a href="#top" style="font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#F5F5F5">Akhil Ashokan</a>
+  <div data-r="navlinks" style="display:flex;gap:clamp(12px,2.2vw,30px);align-items:center">
+    <a href="#work" data-r="navsec" style="font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,245,245,.6)" style-hover="color:#38BDF8">Work</a>
+    <a href="#about" data-r="navsec" style="font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,245,245,.6)" style-hover="color:#38BDF8">About</a>
+    <a href="#experience" data-r="navsec" style="font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,245,245,.6)" style-hover="color:#38BDF8">Experience</a>
+    <a href="#contact" style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#F5F5F5;border:1px solid rgba(245,245,245,.18);border-radius:999px;padding:9px 18px" style-hover="border-color:#38BDF8;color:#38BDF8">Contact</a>
+  </div>
+</nav>
+
+<section id="top" data-r="hero" data-screen-label="Hero" style="position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:120px clamp(20px,5vw,72px) clamp(36px,6vh,68px);overflow:hidden">
+  <canvas ref="{{ heroCanvas }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0"></canvas>
+  <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 78% 20%, rgba(59,130,246,.18), transparent 58%), radial-gradient(90% 80% at 4% 94%, rgba(30,27,75,.6), transparent 62%)"></div>
+  <div style="position:absolute;inset:auto 0 0 0;height:32%;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,6,8,0),#060608)"></div>
+
+  <div style="position:relative;z-index:2;max-width:1240px;width:100%;margin:0 auto">
+    <p style="margin:0 0 clamp(20px,4vh,38px);font-size:11px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:rgba(245,245,245,.45)">Sr UX Designer · Healthcare &amp; EHR</p>
+    <h1 data-r="h1" style="margin:0;font-size:clamp(30px,8.4vw,97px);font-weight:900;line-height:.94;letter-spacing:-.035em;white-space:nowrap">
+      <span style="display:block;background:linear-gradient(94deg,#F5F5F5 4%,#3B82F6 52%,#38BDF8 92%);-webkit-background-clip:text;background-clip:text;color:transparent">Human-centered</span>
+      <span style="display:block">by design.</span>
+    </h1>
+    <div style="display:flex;flex-wrap:wrap;gap:clamp(24px,5vw,72px);align-items:flex-end;justify-content:space-between;margin-top:clamp(28px,5vh,52px)">
+      <p data-r="body" style="margin:0;max-width:52ch;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.62)">I turn complex workflows and user needs into intuitive digital experiences that solve real problems.</p>
+      <div style="display:flex;align-items:center;gap:12px;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,245,245,.4)">
+        <span>Scroll</span>
+        <span style="display:block;animation:om-nudge 1.9s ease-in-out infinite">↓</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" data-r="sec" data-screen-label="About" style="position:relative;padding:clamp(90px,14vh,170px) clamp(20px,5vw,72px);border-top:1px solid rgba(245,245,245,.07)">
+  <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(36px,6vw,90px);align-items:start">
+    <div data-reveal="1">
+      <div style="position:relative;max-width:420px">
+        <div style="position:absolute;inset:-14px -14px auto auto;width:72%;height:72%;border:1px solid rgba(59,130,246,.35);border-radius:4px;z-index:0"></div>
+        <img src="assets/profile.jpeg" alt="Akhil Ashokan" style="position:relative;z-index:1;display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:52% 24%;border-radius:4px;filter:grayscale(1) contrast(1.06);transition:filter .6s ease" style-hover="filter:grayscale(0) contrast(1)">
+        <div style="position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:4px;background:linear-gradient(160deg,rgba(30,27,75,.32),transparent 52%,rgba(56,189,248,.14))"></div>
+      </div>
+    </div>
+    <div data-reveal="1">
+      <p style="margin:0 0 28px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">About</p>
+      <p data-r="lede" style="margin:0 0 26px;font-size:clamp(17px,1.8vw,20px);font-weight:300;line-height:1.5;letter-spacing:-.01em;color:#F5F5F5;text-wrap:pretty">I'm a product design professional with a strong UX background, experienced in simplifying complex workflows and building user-centered solutions for healthcare and enterprise applications.</p>
+      <p data-r="body" style="margin:0 0 20px;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.6);max-width:60ch">Over the years I've worked across research, interaction design, and prototyping to build products people actually enjoy using.</p>
+      <p data-r="body" style="margin:0 0 clamp(36px,5vh,56px);font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.6);max-width:60ch">I leverage AI tools like Claude to support research synthesis, explore design solutions, and accelerate iteration — while keeping usability, clinical workflows, and patient safety at the center of every decision.</p>
+      <div data-r="stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:rgba(245,245,245,.09)">
+        <div data-r="stat" style="background:#060608;padding:24px 20px">
+          <p data-r="statnum" style="margin:0 0 6px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;background:linear-gradient(120deg,#3B82F6,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">2017</p>
+          <p style="margin:0;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Designing since</p>
+        </div>
+        <div data-r="stat" style="background:#060608;padding:24px 20px">
+          <p data-r="statnum" style="margin:0 0 6px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;background:linear-gradient(120deg,#3B82F6,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">EHR</p>
+          <p style="margin:0;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Core domain</p>
+        </div>
+        <div data-r="stat" style="background:#060608;padding:24px 20px">
+          <p data-r="statnum" style="margin:0 0 6px;font-size:clamp(26px,2.8vw,36px);font-weight:600;line-height:1;letter-spacing:-.03em;background:linear-gradient(120deg,#3B82F6,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">6</p>
+          <p style="margin:0;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Major modules shipped</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work" data-r="sec" data-screen-label="Work" style="position:relative;padding:clamp(90px,14vh,170px) clamp(20px,5vw,72px);border-top:1px solid rgba(245,245,245,.07)">
+  <div style="max-width:1240px;margin:0 auto">
+    <div data-reveal="1" data-r="head" style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(48px,8vh,96px)">
+      <div>
+        <p style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">Selected work</p>
+        <h2 data-r="h2" style="margin:0;font-size:clamp(28px,3.6vw,48px);font-weight:700;line-height:1;letter-spacing:-.035em">Case studies</h2>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09)">
+      <a data-reveal="1" data-tilt="1" data-r="card" href="ED + IP Patient Flow.dc.html" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(24px,4vw,56px);padding:clamp(32px,5vw,58px) clamp(24px,4vw,48px);background:#09090C;color:inherit;transition:background .5s ease" style-hover="background:#0C1018">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:22px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.2em;color:rgba(59,130,246,.9)">01</span>
+            <span style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8;border:1px solid rgba(56,189,248,.35);border-radius:999px;padding:5px 12px">Live in production</span>
+          </div>
+          <h3 data-r="h3" style="margin:0 0 16px;font-size:clamp(22px,2.4vw,32px);font-weight:600;line-height:1.05;letter-spacing:-.025em;color:#F5F5F5">ED + IP Tracker Boards</h3>
+          <p data-r="body" style="margin:0 0 26px;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.6);max-width:46ch">Designing patient flow across Emergency and Inpatient care. Two connected tracker boards in BlueEHR, joined by one encounter from ED arrival to discharge.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px">
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">Research</span>
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">UX / Product Design</span>
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">Requirements &amp; workflow</span>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8">Read case study <span>→</span></span>
+        </div>
+        <div style="position:relative;min-height:190px;border:1px solid rgba(245,245,245,.08);border-radius:3px;overflow:hidden;background:#fff">
+          <img src="assets/ed-board.png" alt="ED Tracker Board" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left top;display:block">
+        </div>
+      </a>
+
+      <a data-reveal="1" data-tilt="1" data-r="card" href="MAR Case Study.dc.html" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(24px,4vw,56px);padding:clamp(32px,5vw,58px) clamp(24px,4vw,48px);background:#09090C;color:inherit;transition:background .5s ease" style-hover="background:#0C1018">
+        <div style="order:2">
+          <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:22px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.2em;color:rgba(59,130,246,.9)">02</span>
+            <span style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8;border:1px solid rgba(56,189,248,.35);border-radius:999px;padding:5px 12px">Live in production</span>
+          </div>
+          <h3 data-r="h3" style="margin:0 0 16px;font-size:clamp(22px,2.4vw,32px);font-weight:600;line-height:1.05;letter-spacing:-.025em;color:#F5F5F5">Medicine Administration Records</h3>
+          <p data-r="body" style="margin:0 0 26px;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.6);max-width:46ch">We took Metropolitano Hospital's medication workflows to the next level with a purpose-built MAR. Nurses now administer, verify, and document — including controlled substances — without leaving one screen.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px">
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">Research</span>
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">UX / Product Design</span>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8">Read case study <span>→</span></span>
+        </div>
+        <div style="order:1;position:relative;min-height:190px;border:1px solid rgba(245,245,245,.08);border-radius:3px;overflow:hidden;background:#0A0A10">
+          <img src="assets/mar-main.png" alt="MAR main screen — time-based medication timeline" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left top;display:block">
+        </div>
+      </a>
+
+      <div data-reveal="1" data-tilt="1" data-r="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(24px,4vw,56px);padding:clamp(32px,5vw,58px) clamp(24px,4vw,48px);background:#09090C">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:18px;margin-bottom:22px">
+            <span style="font-size:11px;font-weight:600;letter-spacing:.2em;color:rgba(59,130,246,.9)">03</span>
+            <span style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.5);border:1px solid rgba(245,245,245,.14);border-radius:999px;padding:5px 12px">Case study in progress</span>
+          </div>
+          <h3 data-r="h3" style="margin:0 0 16px;font-size:clamp(22px,2.4vw,32px);font-weight:600;line-height:1.05;letter-spacing:-.025em;color:#F5F5F5">Payment Manager</h3>
+          <p data-r="body" style="margin:0 0 26px;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.6);max-width:46ch">See how we restructured Metropolitano Hospital's Payment Manager to handle inpatient billing at scale. From 1000+ procedure codes per encounter to care-setting and date-wise views, everything now adds up cleanly.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px">
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">Research</span>
+            <span style="font-size:10px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,245,.45);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:6px 11px">UX / Product Design</span>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.35)">Coming soon</span>
+        </div>
+        <div data-slot="Payment Manager — encounter billing view" style="position:relative;min-height:190px;border:1px dashed rgba(245,245,245,.16);border-radius:3px;overflow:hidden;background:linear-gradient(140deg,#0B1B2A,#0A0A10 58%);display:flex;align-items:center;justify-content:center;padding:22px">
+          <div style="position:absolute;inset:0;background:radial-gradient(70% 80% at 84% 82%,rgba(56,189,248,.22),transparent 62%)"></div>
+          <p style="position:relative;margin:0;max-width:26ch;text-align:center;font-size:11px;font-weight:400;line-height:1.7;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,245,.32)">Payment Manager — encounter billing view</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience" data-r="sec" data-screen-label="Experience" style="position:relative;padding:clamp(90px,14vh,170px) clamp(20px,5vw,72px);border-top:1px solid rgba(245,245,245,.07)">
+  <div style="max-width:1240px;margin:0 auto">
+    <div data-reveal="1" style="margin-bottom:clamp(48px,8vh,90px)">
+      <p style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">Experience</p>
+      <h2 data-r="h2" style="margin:0;font-size:clamp(28px,3.6vw,48px);font-weight:700;line-height:1;letter-spacing:-.035em">Nine years, one domain</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:clamp(40px,6vw,90px);align-items:start">
+      <div data-reveal="1">
+        <div style="display:grid;gap:0">
+          <div data-r="exprow" style="display:grid;grid-template-columns:96px 1fr;gap:clamp(16px,3vw,32px);padding:26px 0;border-top:1px solid rgba(245,245,245,.09)">
+            <span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#38BDF8;padding-top:4px">2025 —</span>
+            <div>
+              <h3 style="margin:0 0 6px;font-size:clamp(17px,1.7vw,21px);font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Sr Product Associate</h3>
+              <p style="margin:0;font-size:13px;font-weight:300;color:rgba(245,245,245,.5)">ZH Healthcare · BlueEHR</p>
+            </div>
+          </div>
+          <div data-r="exprow" style="display:grid;grid-template-columns:96px 1fr;gap:clamp(16px,3vw,32px);padding:26px 0;border-top:1px solid rgba(245,245,245,.09)">
+            <span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:rgba(245,245,245,.45);padding-top:4px">2022 — 25</span>
+            <div>
+              <h3 style="margin:0 0 6px;font-size:clamp(17px,1.7vw,21px);font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Sr UX Designer</h3>
+              <p style="margin:0;font-size:13px;font-weight:300;color:rgba(245,245,245,.5)">ZH Healthcare · BlueEHR</p>
+            </div>
+          </div>
+          <div data-r="exprow" style="display:grid;grid-template-columns:96px 1fr;gap:clamp(16px,3vw,32px);padding:26px 0;border-top:1px solid rgba(245,245,245,.09);border-bottom:1px solid rgba(245,245,245,.09)">
+            <span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:rgba(245,245,245,.45);padding-top:4px">2017 — 22</span>
+            <div>
+              <h3 style="margin:0 0 6px;font-size:clamp(17px,1.7vw,21px);font-weight:500;letter-spacing:-.01em;color:#F5F5F5">Junior UI Designer</h3>
+              <p style="margin:0;font-size:13px;font-weight:300;color:rgba(245,245,245,.5)">ZH Healthcare</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:44px">
+          <p style="margin:0 0 18px;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,245,245,.4)">Education</p>
+          <p style="margin:0 0 8px;font-size:15px;font-weight:400;color:#F5F5F5">B.Com</p>
+          <p style="margin:0;font-size:15px;font-weight:400;color:#F5F5F5">Diploma in Web Designing</p>
+        </div>
+        <a href="assets/Akhil-Ashokan-Resume.pdf" download data-magnetic="1" style="display:inline-flex;align-items:center;gap:12px;margin-top:44px;padding:16px 30px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);transition:box-shadow .4s ease" style-hover="box-shadow:0 0 0 1px rgba(56,189,248,.5),0 12px 40px rgba(59,130,246,.35);color:#060608">Download resume <span>↓</span></a>
+      </div>
+
+      <div data-reveal="1">
+        <p style="margin:0 0 30px;font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,245,245,.4)">Skills</p>
+        <div style="display:flex;flex-direction:column;gap:32px">
+          <div>
+            <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">User Research &amp; Strategy</h3>
+            <p data-r="body" style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.58)">User Research · Competitor Analysis · User Stories &amp; Personas · Usability Testing</p>
+          </div>
+          <div>
+            <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">UX/UI Design &amp; Execution</h3>
+            <p data-r="body" style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.58)">Workflow Architecture &amp; User Flows · Low-Fidelity Wireframing · High-Fidelity UI Design · Design Systems · Interactive Prototyping</p>
+          </div>
+          <div>
+            <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">AI-Assisted &amp; Technical Prototyping</h3>
+            <p data-r="body" style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.58)">Front-End AI Prototyping — HTML/React production-ready components for dev handoff · AI-Driven UX Research &amp; Prompt Engineering</p>
+          </div>
+          <div>
+            <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:-.005em;color:#38BDF8">Cross-Functional Collaboration &amp; Process</h3>
+            <p data-r="body" style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.58)">Stakeholder Reviews &amp; Design Critiques · Developer Handoff · QA/Testing Collaboration · Technical Documentation Alignment · Agile/Scrum Sprint Planning</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-r="tools" data-screen-label="Tools" style="position:relative;padding:clamp(52px,8vh,86px) 0;border-top:1px solid rgba(245,245,245,.07);overflow:hidden">
+  <p data-reveal="1" style="margin:0 0 32px;padding:0 clamp(20px,5vw,72px);font-size:10px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,245,245,.4)">Tool proficiency</p>
+  <div ref="{{ marquee }}" style="display:flex;width:max-content;animation:om-marquee 34s linear infinite;will-change:transform">
+    <div style="display:flex;align-items:center;gap:clamp(28px,4vw,56px);padding-right:clamp(28px,4vw,56px)">
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Figma</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Whimsical</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Claude Code</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">ChatGPT</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Jira</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Confluence</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Notion</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">HTML5</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">CSS3</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">React</span><span style="color:#3B82F6">·</span>
+    </div>
+    <div aria-hidden="true" style="display:flex;align-items:center;gap:clamp(28px,4vw,56px);padding-right:clamp(28px,4vw,56px)">
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Figma</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Whimsical</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Claude Code</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">ChatGPT</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Jira</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Confluence</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">Notion</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">HTML5</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">CSS3</span><span style="color:#3B82F6">·</span>
+      <span style="font-size:clamp(22px,3.4vw,46px);font-weight:200;letter-spacing:-.02em;color:rgba(245,245,245,.32);white-space:nowrap">React</span><span style="color:#3B82F6">·</span>
+    </div>
+  </div>
+</section>
+
+<section id="contact" data-r="sec" data-screen-label="Contact" style="position:relative;padding:clamp(90px,14vh,180px) clamp(20px,5vw,72px);border-top:1px solid rgba(245,245,245,.07);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 70% at 50% 108%,rgba(59,130,246,.22),transparent 62%)"></div>
+  <div style="position:relative;max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:clamp(40px,6vw,96px);align-items:start">
+    <div data-reveal="1">
+      <p style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">Contact</p>
+      <h2 data-r="h2" style="margin:0 0 30px;font-size:clamp(28px,3.6vw,48px);font-weight:700;line-height:1;letter-spacing:-.035em">Let's make<br><span style="background:linear-gradient(96deg,#3B82F6,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">clinical work</span><br>feel simpler.</h2>
+      <p data-r="body" style="margin:0 0 40px;max-width:44ch;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.6)">Open to conversations about healthcare product design, EHR workflows, and AI-assisted design practice.</p>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <a href="mailto:akhilarayakkandy@gmail.com" style="font-size:clamp(15px,1.4vw,17px);font-weight:400;letter-spacing:-.01em;color:#F5F5F5;border-bottom:1px solid rgba(245,245,245,.16);padding-bottom:8px;width:fit-content;transition:border-color .3s ease,color .3s ease" style-hover="border-color:#38BDF8;color:#38BDF8">akhilarayakkandy@gmail.com</a>
+        <a href="https://www.linkedin.com/in/akhil-a-7012bb123/" target="_blank" rel="noopener" style="font-size:clamp(15px,1.4vw,17px);font-weight:400;letter-spacing:-.01em;color:#F5F5F5;border-bottom:1px solid rgba(245,245,245,.16);padding-bottom:8px;width:fit-content;transition:border-color .3s ease,color .3s ease" style-hover="border-color:#38BDF8;color:#38BDF8">LinkedIn ↗</a>
+      </div>
+    </div>
+
+    <form data-r="form" data-reveal="1" onSubmit="{{ onSubmit }}" style="display:flex;flex-direction:column;gap:22px;padding:clamp(26px,3.5vw,44px);background:rgba(245,245,245,.025);border:1px solid rgba(245,245,245,.09);border-radius:4px">
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <label for="cf-name" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.45)">Name</label>
+        <input id="cf-name" name="name" type="text" required style="background:transparent;border:0;border-bottom:1px solid rgba(245,245,245,.16);color:#F5F5F5;font-size:15px;font-weight:300;padding:10px 0;outline:none;min-height:44px" style-focus="border-bottom-color:#38BDF8">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <label for="cf-email" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.45)">Email</label>
+        <input id="cf-email" name="email" type="email" required style="background:transparent;border:0;border-bottom:1px solid rgba(245,245,245,.16);color:#F5F5F5;font-size:15px;font-weight:300;padding:10px 0;outline:none;min-height:44px" style-focus="border-bottom-color:#38BDF8">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <label for="cf-msg" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.45)">Message</label>
+        <textarea id="cf-msg" name="message" rows="4" required style="background:transparent;border:0;border-bottom:1px solid rgba(245,245,245,.16);color:#F5F5F5;font-size:15px;font-weight:300;padding:10px 0;outline:none;resize:vertical" style-focus="border-bottom-color:#38BDF8"></textarea>
+      </div>
+      <button type="submit" data-magnetic="1" style="margin-top:6px;min-height:52px;border:0;border-radius:999px;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);transition:box-shadow .4s ease" style-hover="box-shadow:0 0 0 1px rgba(56,189,248,.5),0 12px 40px rgba(59,130,246,.3)">Send message</button>
+      <p style="margin:0;font-size:11px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.38)">Opens in your mail client, addressed to me.</p>
+    </form>
+  </div>
+</section>
+
+<footer data-r="footer" style="padding:40px clamp(20px,5vw,72px);border-top:1px solid rgba(245,245,245,.07);display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+  <p style="margin:0;font-size:11px;font-weight:300;letter-spacing:.1em;color:rgba(245,245,245,.38)">© 2026 Akhil Ashokan</p>
+  <div data-r="footlinks" style="display:flex;gap:26px;align-items:center">
+    <a href="mailto:akhilarayakkandy@gmail.com" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.5)" style-hover="color:#38BDF8">Email</a>
+    <a href="https://www.linkedin.com/in/akhil-a-7012bb123/" target="_blank" rel="noopener" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.5)" style-hover="color:#38BDF8">LinkedIn</a>
+    <a href="#top" style="font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.5)" style-hover="color:#38BDF8">Back to top ↑</a>
+  </div>
+</footer>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.cursorDot = React.createRef();
+    this.cursorRing = React.createRef();
+    this.progressBar = React.createRef();
+    this.heroCanvas = React.createRef();
+    this.marquee = React.createRef();
+    this._raf = null;
+  }
+
+  renderVals() {
+    return {
+      cursorDot: this.cursorDot,
+      cursorRing: this.cursorRing,
+      progressBar: this.progressBar,
+      heroCanvas: this.heroCanvas,
+      marquee: this.marquee,
+      onSubmit: (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const name = (f.name && f.name.value) || '';
+        const email = (f.email && f.email.value) || '';
+        const msg = (f.message && f.message.value) || '';
+        const body = encodeURIComponent(msg + '\n\n— ' + name + ' (' + email + ')');
+        window.location.href = 'mailto:akhilarayakkandy@gmail.com?subject=' +
+          encodeURIComponent('Portfolio enquiry from ' + name) + '&body=' + body;
+      }
+    };
+  }
+
+  componentDidMount() {
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    this.setupCursor();
+    this.setupReveals();
+    this.setupTilt();
+    this.setupMagnetic();
+    this.setupProgress();
+    this.setupHero();
+  }
+
+  componentWillUnmount() {
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._onMove) window.removeEventListener('mousemove', this._onMove);
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+    if (this._io) this._io.disconnect();
+  }
+
+  root() { return this.cursorDot.current ? this.cursorDot.current.getRootNode() : document; }
+
+  setupCursor() {
+    const dot = this.cursorDot.current, ring = this.cursorRing.current;
+    if (!dot || !ring || !this.fine) return;
+    let tx = 0, ty = 0, rx = 0, ry = 0, shown = false;
+    this._onMove = (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!shown) { shown = true; dot.style.opacity = '1'; ring.style.opacity = '1'; }
+      dot.style.transform = 'translate(' + tx + 'px,' + ty + 'px) translate(-50%,-50%)';
+      const t = e.target;
+      const hot = t && t.closest && t.closest('a,button,input,textarea,[data-tilt]');
+      if (hot) {
+        ring.style.width = '62px'; ring.style.height = '62px';
+        ring.style.borderColor = 'rgba(56,189,248,.9)';
+        ring.style.background = 'rgba(56,189,248,.07)';
+      } else {
+        ring.style.width = '38px'; ring.style.height = '38px';
+        ring.style.borderColor = 'rgba(59,130,246,.55)';
+        ring.style.background = 'transparent';
+      }
+    };
+    window.addEventListener('mousemove', this._onMove, { passive: true });
+    const loop = () => {
+      rx += (tx - rx) * 0.16; ry += (ty - ry) * 0.16;
+      ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+      this._ringRaf = requestAnimationFrame(loop);
+    };
+    loop();
+  }
+
+  setupReveals() {
+    const nodes = Array.from(this.root().querySelectorAll('[data-reveal]'));
+    if (!nodes.length) return;
+    if (this.reduced || !('IntersectionObserver' in window)) return;
+    const vh = window.innerHeight;
+    nodes.forEach((n) => {
+      if (n.getBoundingClientRect().top < vh * 0.9) return;
+      n.style.opacity = '0';
+      n.style.transform = 'translateY(26px)';
+      n.style.transition = 'opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1)';
+    });
+    this._io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.style.opacity = '1';
+        en.target.style.transform = 'translateY(0)';
+        this._io.unobserve(en.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    nodes.forEach((n) => this._io.observe(n));
+    setTimeout(() => nodes.forEach((n) => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }), 4000);
+  }
+
+  setupTilt() {
+    if (this.reduced || !this.fine) return;
+    this.root().querySelectorAll('[data-tilt]').forEach((card) => {
+      card.style.transformStyle = 'preserve-3d';
+      card.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transition = 'transform .12s linear';
+        card.style.transform = 'perspective(1400px) rotateY(' + (px * 3.2).toFixed(2) + 'deg) rotateX(' + (-py * 2.4).toFixed(2) + 'deg)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform .6s cubic-bezier(.22,1,.36,1)';
+        card.style.transform = 'perspective(1400px) rotateY(0) rotateX(0)';
+      });
+    });
+  }
+
+  setupMagnetic() {
+    if (this.reduced || !this.fine) return;
+    this.root().querySelectorAll('[data-magnetic]').forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const r = el.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+        const dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+        el.style.transform = 'translate(' + (dx * 12).toFixed(1) + 'px,' + (dy * 8).toFixed(1) + 'px)';
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+        el.style.transform = 'translate(0,0)';
+        setTimeout(() => { el.style.transition = ''; }, 500);
+      });
+    });
+  }
+
+  setupProgress() {
+    const bar = this.progressBar.current;
+    if (!bar) return;
+    this._onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0).toFixed(2) + '%';
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+
+  setupHero() {
+    const cv = this.heroCanvas.current;
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+
+    // Icosphere-ish point cloud (fibonacci sphere) projected by hand — light, no deps.
+    const N = window.innerWidth < 760 ? 260 : 640;
+    const pts = [];
+    const ga = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;
+      const r = Math.sqrt(Math.max(0, 1 - y * y));
+      const th = ga * i;
+      pts.push({ x: Math.cos(th) * r, y: y, z: Math.sin(th) * r, s: 0.5 + Math.random() * 0.9 });
+    }
+
+    let W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const fit = () => {
+      const r = cv.getBoundingClientRect();
+      W = Math.max(1, r.width); H = Math.max(1, r.height);
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    fit();
+    this._onResize = fit;
+    window.addEventListener('resize', this._onResize);
+
+    let mx = 0, my = 0, tmx = 0, tmy = 0, sy = 0;
+    if (this.fine) {
+      window.addEventListener('mousemove', (e) => {
+        tmx = (e.clientX / window.innerWidth - 0.5) * 2;
+        tmy = (e.clientY / window.innerHeight - 0.5) * 2;
+      }, { passive: true });
+    }
+    window.addEventListener('scroll', () => { sy = window.scrollY; }, { passive: true });
+
+    const grad = (a) => {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, 'rgba(99,102,241,' + a + ')');
+      g.addColorStop(0.5, 'rgba(59,130,246,' + a + ')');
+      g.addColorStop(1, 'rgba(56,189,248,' + a + ')');
+      return g;
+    };
+
+    let t = 0;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      if (sy < window.innerHeight * 1.15) {
+        t += this.reduced ? 0 : 0.0028;
+        mx += (tmx - mx) * 0.045; my += (tmy - my) * 0.045;
+
+        const cx = W * (window.innerWidth < 900 ? 0.5 : 0.71);
+        const cy = H * 0.44 - sy * 0.12;
+        const R = Math.min(W, H) * (window.innerWidth < 900 ? 0.36 : 0.33);
+
+        const ay = t + mx * 0.5;
+        const ax = t * 0.6 + my * 0.4;
+        const ca = Math.cos(ay), sa = Math.sin(ay);
+        const cb = Math.cos(ax), sb = Math.sin(ax);
+
+        const proj = [];
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          const wob = 1 + 0.085 * Math.sin(p.x * 3.1 + t * 2.6) * Math.cos(p.y * 2.7 - t * 1.9);
+          let x = p.x * wob, y = p.y * wob, z = p.z * wob;
+          let x1 = x * ca - z * sa, z1 = x * sa + z * ca;
+          let y1 = y * cb - z1 * sb, z2 = y * sb + z1 * cb;
+          const pers = 2.6 / (2.6 + z2);
+          proj.push({ X: cx + x1 * R * pers, Y: cy + y1 * R * pers, d: z2, s: p.s * pers });
+        }
+
+        ctx.strokeStyle = grad(0.055);
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        for (let i = 0; i < proj.length; i += 3) {
+          const a = proj[i], b = proj[(i + 7) % proj.length];
+          const dx = a.X - b.X, dy = a.Y - b.Y;
+          if (dx * dx + dy * dy < (R * 0.3) * (R * 0.3)) { ctx.moveTo(a.X, a.Y); ctx.lineTo(b.X, b.Y); }
+        }
+        ctx.stroke();
+
+        for (let i = 0; i < proj.length; i++) {
+          const p = proj[i];
+          const a = 0.16 + 0.62 * ((1.1 - p.d) / 2.1);
+          ctx.fillStyle = 'rgba(' + Math.round(120 + 90 * (1 - p.d)) + ',' + Math.round(165 + 55 * (1 - p.d)) + ',252,' + a.toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.arc(p.X, p.Y, Math.max(0.35, p.s * 1.5), 0, 6.2832);
+          ctx.fill();
+        }
+      }
+      this._raf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+}
+
+</script>
+</body>
+</html>

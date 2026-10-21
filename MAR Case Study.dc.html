@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="description" content="MAR — Medication Administration Record. Designing a time-based medication administration workflow for Emergency and Inpatient care. Case study by Akhil Ashokan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #060608; color: #F5F5F5; font-family: Poppins, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: #7DD3FC; text-decoration: none; }
+  a:hover { color: #38BDF8; }
+  h1, h2, h3, h4, p { text-wrap: pretty; overflow-wrap: break-word; }
+  [data-navstrip]::-webkit-scrollbar { display: none; }
+  ::selection { background: #3B82F6; color: #fff; }
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: #060608; }
+  ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 9px; }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } html { scroll-behavior: auto; } }
+</style>
+</helmet>
+
+<div style="position:fixed;top:0;left:0;height:2px;width:100%;z-index:9000">
+  <div ref="{{ progressBar }}" style="height:100%;width:0%;background:linear-gradient(90deg,#1E1B4B,#3B82F6,#38BDF8)"></div>
+</div>
+
+<nav style="position:sticky;top:0;z-index:8000;background:rgba(6,6,8,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:1280px;margin:0 auto;padding:16px clamp(20px,4vw,56px);display:flex;align-items:center;gap:clamp(18px,3vw,40px);justify-content:space-between">
+    <a href="Akhil Ashokan - Portfolio.dc.html" style="display:inline-flex;align-items:center;gap:9px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.6);white-space:nowrap" style-hover="color:#38BDF8"><span>←</span> Portfolio</a>
+    <div data-navstrip="1" style="display:flex;gap:clamp(14px,2vw,28px);overflow-x:auto;padding-bottom:2px;scrollbar-width:none;-ms-overflow-style:none">
+      <a href="#overview" data-nav="overview" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Overview</a>
+      <a href="#problem" data-nav="problem" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Problem</a>
+      <a href="#timeline" data-nav="timeline" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Timeline</a>
+      <a href="#hierarchy" data-nav="hierarchy" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Hierarchy</a>
+      <a href="#administration" data-nav="administration" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Administration</a>
+      <a href="#system" data-nav="system" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">System</a>
+      <a href="#outcome" data-nav="outcome" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Outcome</a>
+      <a href="#reflection" data-nav="reflection" style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,245,245,.45);white-space:nowrap;padding:4px 0;border-bottom:2px solid transparent">Reflection</a>
+    </div>
+  </div>
+</nav>
+
+<section id="overview" data-screen-label="Overview" style="position:relative;padding:clamp(60px,10vh,120px) clamp(20px,4vw,56px) clamp(70px,11vh,140px);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 70% at 82% 0%,rgba(59,130,246,.16),transparent 60%),radial-gradient(70% 60% at 0% 18%,rgba(30,27,75,.5),transparent 62%)"></div>
+  <div style="position:relative;max-width:820px;margin:0 auto">
+    <p style="margin:0 0 clamp(22px,4vh,38px);font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:rgba(245,245,245,.45)">Case Study · Healthcare / EHR</p>
+    <h1 style="margin:0 0 26px;font-size:clamp(36px,5.4vw,72px);font-weight:700;line-height:.98;letter-spacing:-.035em">MAR<br><span style="background:linear-gradient(96deg,#F5F5F5,#3B82F6 52%,#38BDF8);-webkit-background-clip:text;background-clip:text;color:transparent">Medication Administration Record</span></h1>
+    <p style="margin:0 0 clamp(44px,7vh,72px);max-width:44ch;font-size:clamp(17px,1.8vw,20px);font-weight:300;line-height:1.5;color:rgba(245,245,245,.72)">Designing a time-based medication administration workflow for Emergency and Inpatient care</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(44px,7vh,72px)">
+      <div style="background:#060608;padding:24px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Role</p>
+        <p style="margin:0;font-size:15px;font-weight:400;color:#F5F5F5">UX Designer</p>
+      </div>
+      <div style="background:#060608;padding:24px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Product</p>
+        <p style="margin:0;font-size:15px;font-weight:400;color:#F5F5F5">BlueEHR</p>
+      </div>
+      <div style="background:#060608;padding:24px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Client</p>
+        <p style="margin:0;font-size:15px;font-weight:400;color:#F5F5F5">Hospital Metropolitano</p>
+      </div>
+      <div style="background:#060608;padding:24px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Primary users</p>
+        <p style="margin:0;font-size:15px;font-weight:400;color:#F5F5F5">Nurses, Physicians, Pharmacists</p>
+      </div>
+      <div style="background:#060608;padding:24px 22px">
+        <p style="margin:0 0 9px;font-size:10px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,245,245,.42)">Status</p>
+        <p style="margin:0;font-size:15px;font-weight:400;color:#38BDF8">Live in production</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(44px,7vh,72px)">
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">Medication administration is a time-sensitive part of clinical care. Nurses need to know what medication is due, when it is due, what has already been given, and what still needs attention.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">Before MAR, Hospital Metropolitano was using Excel for medication administration records. The requirement was to move this into a structured and easier-to-use experience inside BlueEHR.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">I designed the MAR experience first for the Emergency Department. The MAR framework was later extended to support Inpatient workflows and connected to the ED, IP, and OR tracker boards.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">The final MAR is now live at Hospital Metropolitano.</p>
+      </div>
+    </div>
+
+    <div style="padding:clamp(28px,3.4vw,44px);border-left:2px solid #3B82F6;background:linear-gradient(100deg,rgba(59,130,246,.12),rgba(59,130,246,0));margin-bottom:clamp(44px,7vh,72px)">
+      <p style="margin:0;max-width:72ch;font-size:15px;font-weight:300;line-height:1.6;color:#F5F5F5"><strong style="font-weight:600">Core design idea:</strong> Make time the main structure of the medication workflow, while keeping different medication behaviors easy to find and understand.</p>
+    </div>
+
+    <figure style="margin:0;width:100%">
+      <div style="border:1px solid rgba(245,245,245,.1);border-radius:6px;overflow:hidden;background:#fff;box-shadow:0 40px 120px rgba(59,130,246,.14)">
+        <img src="assets/mar-main.png" alt="MAR main screen — timeline, current-time indicator and medication cards" style="display:block;width:100%;height:auto">
+      </div>
+      <figcaption style="margin-top:16px;max-width:80ch;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)"><strong style="font-weight:500;color:rgba(245,245,245,.7)">Portfolio reconstruction:</strong> This screen is recreated for portfolio presentation. Client-specific screens and sensitive information have been changed or omitted to protect confidentiality and privacy.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="problem" data-screen-label="Problem" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">02 — The problem</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">The challenge was not simply to replace an Excel sheet.</h2>
+    <p data-reveal="1" style="margin:0 0 30px;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">The medication workflow had many different behaviors:</p>
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:clamp(56px,8vh,96px)">
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Scheduled medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Due medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Overdue medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">PRN medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Continuous medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Controlled substances</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Administered medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Refused / Not Administered medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Discontinued medications</span>
+      <span style="font-size:15px;font-weight:400;color:rgba(245,245,245,.7);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:10px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Completed medication courses</span>
+    </div>
+
+    <p data-reveal="1" style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">There were also dependencies outside MAR.</p>
+    <p data-reveal="1" style="margin:0 0 26px;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.6)">A medication could move through:</p>
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:clamp(40px,6vh,64px)">
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Prescription</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Pharmacy review</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Availability</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:14px;font-weight:500;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">MAR</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Administration</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Billing / Inventory</span>
+    </div>
+    <p data-reveal="1" style="margin:0 0 30px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">A pharmacy rejection could stop a medication from being administered. An administration record could affect billing and inventory. Providers also needed the patient's medication history across ED, IP, and OR.</p>
+    <p data-reveal="1" style="margin:0;max-width:40ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.4;letter-spacing:-.02em;color:#F5F5F5">This meant MAR could not be designed as an isolated screen.</p>
+  </div>
+</section>
+
+<section id="workflow" data-screen-label="Workflow" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#818CF8">03 — Research</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Understanding the real workflow</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(40px,6vh,64px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">The main source for understanding the clinical workflow was the client's UAT scripts. These contained real medication-administration scenarios used by the client team and helped me understand how nurses would work with the system.</p>
+
+    <p data-reveal="1" style="margin:0 0 22px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,245,245,.45)">The design process was</p>
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:clamp(40px,6vh,64px)">
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">UAT scenarios</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">UX exploration</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Self-review</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Manager review</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">BA review</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Developer feasibility check</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Stakeholder review</span>
+      <span style="color:rgba(245,245,245,.3)">→</span>
+      <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.7);background:rgba(245,245,245,.04);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:10px 15px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Client review</span>
+    </div>
+
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(56px,8vh,96px)">
+      <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">I also reviewed existing BlueEHR patterns, including the calendar experience, and explored input from the BA and client team.</p>
+      <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This was not a formal nurse research study. The UAT scenarios were the main source used to understand the workflow and edge cases.</p>
+    </div>
+
+    <h3 data-reveal="1" style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Point-of-care constraint</h3>
+    <p data-reveal="1" style="margin:0 0 16px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The client expected nurses to potentially use laptops on wheels while preparing and administering medication.</p>
+    <p data-reveal="1" style="margin:0 0 24px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The nurse needs to verify the correct:</p>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:30px">
+      <div style="background:#0B0B10;padding:22px 20px"><p style="margin:0 0 8px;font-size:11px;font-weight:600;color:rgba(129,140,248,.8)">01</p><p style="margin:0;font-size:17px;font-weight:500;color:#F5F5F5">Patient</p></div>
+      <div style="background:#0B0B10;padding:22px 20px"><p style="margin:0 0 8px;font-size:11px;font-weight:600;color:rgba(129,140,248,.8)">02</p><p style="margin:0;font-size:17px;font-weight:500;color:#F5F5F5">Medication</p></div>
+      <div style="background:#0B0B10;padding:22px 20px"><p style="margin:0 0 8px;font-size:11px;font-weight:600;color:rgba(129,140,248,.8)">03</p><p style="margin:0;font-size:17px;font-weight:500;color:#F5F5F5">Route</p></div>
+      <div style="background:#0B0B10;padding:22px 20px"><p style="margin:0 0 8px;font-size:11px;font-weight:600;color:rgba(129,140,248,.8)">04</p><p style="margin:0;font-size:17px;font-weight:500;color:#F5F5F5">Dose</p></div>
+      <div style="background:#0B0B10;padding:22px 20px"><p style="margin:0 0 8px;font-size:11px;font-weight:600;color:rgba(129,140,248,.8)">05</p><p style="margin:0;font-size:17px;font-weight:500;color:#F5F5F5">Time</p></div>
+    </div>
+    <p data-reveal="1" style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The MAR therefore needed to support quick access to the right information without making the nurse move through several screens.</p>
+  </div>
+</section>
+
+<section id="timeline" data-screen-label="Timeline" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#F59E0B">04 — Structure</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">From a list to a timeline</h2>
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(56px,8vh,96px)">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">The initial direction was a list-based structure with tabs.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">As I worked through the medication scenarios, I found a problem with a simple list: it showed the medications, but the relationship between the medication and its scheduled time was not strong enough.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.68)">I explored a time-based structure instead.</p>
+      </div>
+      <div>
+        <h3 style="margin:0 0 18px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Why a horizontal timeline?</h3>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">A vertical list uses the screen height to show medications. As more medications are added, the user needs to scroll through the list while also trying to understand when each medication belongs.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The horizontal timeline allowed time to become the main structure.</p>
+      </div>
+    </div>
+
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:clamp(40px,6vh,64px)">
+      <span style="font-size:clamp(17px,1.8vw,20px);font-weight:500;color:#F5F5F5">Time</span>
+      <span style="font-size:22px;color:#F59E0B">→</span>
+      <span style="font-size:clamp(17px,1.8vw,20px);font-weight:500;color:#F5F5F5">Medication</span>
+      <span style="font-size:22px;color:#F59E0B">→</span>
+      <span style="font-size:clamp(17px,1.8vw,20px);font-weight:500;color:#F5F5F5">Current attention</span>
+    </div>
+
+    <p data-reveal="1" style="margin:0 0 16px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The MAR shows 24-hour time slots and a current-time indicator. Medication cards appear against their scheduled time, making it easier to understand the frequency and timing of each medication.</p>
+    <p data-reveal="1" style="margin:0 0 clamp(40px,6vh,64px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This approach was reviewed with the team and accepted by the client.</p>
+
+    <figure data-reveal="1" style="margin:0;width:100%">
+      <div style="border:1px solid rgba(245,245,245,.1);border-radius:6px;overflow:hidden;background:#fff;box-shadow:0 40px 120px rgba(245,158,11,.08)">
+        <img src="assets/mar-card.png" alt="Timeline with medication cards — Phenobarbital card in focus, due now" style="display:block;width:100%;height:auto">
+      </div>
+      <figcaption style="margin-top:16px;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)">Timeline / medication cards</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="hierarchy" data-screen-label="Hierarchy" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#34D399">05 — Hierarchy</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Designing the medication hierarchy</h2>
+    <p data-reveal="1" style="margin:0 0 16px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">The biggest design challenge was not fitting the medication cards on the screen. It was deciding how much attention each medication should receive.</p>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Every piece of clinical information can be important. I did not want to remove information just to make the screen look simpler. Instead, I used visual hierarchy to help users understand what needs attention first.</p>
+
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(40px,6vh,64px)">
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <p style="margin:0 0 12px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#FB923C">Higher attention</p>
+        <h4 style="margin:0 0 14px;font-size:18px;font-weight:600;color:#F5F5F5">Due / Overdue</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">These medications need an action or follow-up, so they receive stronger visual emphasis.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <p style="margin:0 0 12px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#34D399">Lower visual weight</p>
+        <h4 style="margin:0 0 14px;font-size:18px;font-weight:600;color:#F5F5F5">Administered</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Once a medication has been administered, it no longer needs the same level of attention. It remains available because users may need to review its administration details later.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <p style="margin:0 0 12px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#818CF8">Different behavior</p>
+        <h4 style="margin:0 0 14px;font-size:18px;font-weight:600;color:#F5F5F5">PRN / Continuous</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">These medications do not always follow the same time-based behavior as scheduled medications, so they need a different access pattern.</p>
+      </div>
+      <div style="background:#0B0B10;padding:clamp(24px,3vw,36px)">
+        <p style="margin:0 0 12px;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#7DD3FC">Special identification</p>
+        <h4 style="margin:0 0 14px;font-size:18px;font-weight:600;color:#F5F5F5">Controlled substances</h4>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Controlled medications need to be clearly identified. Instead of depending only on color, I used an icon so the information could be recognized without relying on color alone.</p>
+      </div>
+    </div>
+    <p data-reveal="1" style="margin:0 0 clamp(70px,10vh,120px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">The result was a screen where medication cards could carry different levels of attention without every card competing equally.</p>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(36px,6vw,90px);align-items:start;margin-bottom:clamp(70px,10vh,120px)">
+      <div data-reveal="1">
+        <p style="margin:0 0 18px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#34D399">06</p>
+        <h3 style="margin:0 0 22px;font-size:clamp(20px,2.2vw,28px);font-weight:600;line-height:1.15;letter-spacing:-.02em;color:#F5F5F5">PRN and Continuous medications</h3>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">PRN and Continuous medications introduced a different problem. The challenge was not simply attention. It was <strong style="font-weight:600;color:#F5F5F5">accessibility</strong>.</p>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">A PRN medication may be needed when required rather than at one fixed time. A Continuous medication can remain active for a period of time.</p>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">If these medications were placed only inside the scrolling timeline, users could have to search for them when they needed them.</p>
+        <p style="margin:0 0 26px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">I therefore kept them in a fixed area below the main timeline. This created two simple interaction patterns:</p>
+        <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09)">
+          <p style="margin:0;background:#0B0B10;padding:18px 20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.62)"><strong style="font-weight:600;color:#F5F5F5">Scheduled medications:</strong> follow the time-based timeline.</p>
+          <p style="margin:0;background:#0B0B10;padding:18px 20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.62)"><strong style="font-weight:600;color:#F5F5F5">PRN / Continuous medications:</strong> remain easily accessible.</p>
+        </div>
+      </div>
+      <figure data-reveal="1" style="margin:0;width:100%">
+        <div style="position:relative;aspect-ratio:1411/360;border:1px solid rgba(245,245,245,.1);border-radius:6px;overflow:hidden;background:#fff">
+          <img src="assets/mar-card.png" alt="PRN and Continuous medications in a fixed area below the timeline" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:0% 94%;display:block">
+        </div>
+        <figcaption style="margin-top:16px;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)">PRN / Continuous area</figcaption>
+      </figure>
+    </div>
+
+    <div data-reveal="1" style="margin-bottom:clamp(70px,10vh,120px)">
+      <p style="margin:0 0 18px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#34D399">07</p>
+      <h3 style="margin:0 0 22px;font-size:clamp(20px,2.2vw,28px);font-weight:600;line-height:1.15;letter-spacing:-.02em;color:#F5F5F5">Medication states and sections</h3>
+      <p style="margin:0 0 32px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The MAR was organized into separate views so users could focus on the type of medication information they needed.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:26px">
+        <div style="background:#0B0B10;padding:22px 20px"><h4 style="margin:0 0 10px;font-size:15px;font-weight:600;color:#34D399">All</h4><p style="margin:0;font-size:13px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.58)">Shows the medication records across the main MAR workflow.</p></div>
+        <div style="background:#0B0B10;padding:22px 20px"><h4 style="margin:0 0 10px;font-size:15px;font-weight:600;color:#34D399">PRN</h4><p style="margin:0;font-size:13px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.58)">Shows medications that can be administered as needed.</p></div>
+        <div style="background:#0B0B10;padding:22px 20px"><h4 style="margin:0 0 10px;font-size:15px;font-weight:600;color:#34D399">Continuous</h4><p style="margin:0;font-size:13px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.58)">Shows medications that continue over a period of time.</p></div>
+        <div style="background:#0B0B10;padding:22px 20px"><h4 style="margin:0 0 10px;font-size:15px;font-weight:600;color:#34D399">Overdue</h4><p style="margin:0;font-size:13px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.58)">Shows medications that passed their allowed administration window without being documented.</p></div>
+        <div style="background:#0B0B10;padding:22px 20px"><h4 style="margin:0 0 10px;font-size:15px;font-weight:600;color:#34D399">Discontinued / Completed</h4><p style="margin:0;font-size:13px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.58)">Shows medications that have been intentionally discontinued or have completed their course.</p></div>
+      </div>
+      <p style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">A medication can therefore move through different states without losing its administration history.</p>
+    </div>
+
+    <div data-reveal="1">
+      <p style="margin:0 0 18px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#34D399">08</p>
+      <h3 style="margin:0 0 22px;font-size:clamp(20px,2.2vw,28px);font-weight:600;line-height:1.15;letter-spacing:-.02em;color:#F5F5F5">Handling overdue medications</h3>
+      <div style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px)">
+        <div>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Overdue medication required special treatment.</p>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The system still allows an overdue medication to be administered. The nurse records the actual administration time, while the system also keeps the system-tracked time.</p>
+          <p style="margin:0 0 20px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This means the design needs to communicate two things:</p>
+          <div style="padding:22px 24px;border-left:2px solid #FB923C;background:linear-gradient(100deg,rgba(251,146,60,.12),rgba(251,146,60,0))">
+            <p style="margin:0;font-size:16px;font-weight:500;line-height:1.6;color:#F5F5F5">The medication was due earlier → The medication may still need action now</p>
+          </div>
+        </div>
+        <div>
+          <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">I gave overdue medications stronger visual attention because they represent an unresolved scheduled action.</p>
+          <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This also matters beyond the MAR screen. Administration records become part of the patient's treatment history and can help providers understand whether a medication was given and how the patient's condition changed over time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="administration" data-screen-label="Administration" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">09 — Administration</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Administration without losing context</h2>
+    <p data-reveal="1" style="margin:0 0 16px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">Once a nurse selects a medication, the administration action opens in a right-side panel rather than taking the user away from the MAR.</p>
+    <p data-reveal="1" style="margin:0 0 32px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">The panel keeps the medication context visible while allowing the user to complete the required documentation. The flow is:</p>
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:clamp(44px,6vh,72px)">
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Medication card</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Administer</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Review details</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:15px;font-weight:400;color:#7DD3FC;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Enter administration information</span>
+      <span style="color:rgba(245,245,245,.35)">→</span>
+      <span style="font-size:14px;font-weight:500;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);border-radius:3px;padding:12px 18px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Save</span>
+    </div>
+
+    <figure data-reveal="1" style="margin:0 0 clamp(56px,8vh,96px)">
+      <div style="border:1px solid rgba(245,245,245,.1);border-radius:6px;overflow:hidden;background:#fff;box-shadow:0 40px 120px rgba(59,130,246,.14)">
+        <img src="assets/mar-administer.png" alt="Administer medication right-side panel with status, administered by, documented by and controlled-substance fields" style="display:block;width:100%;height:auto">
+      </div>
+      <figcaption style="margin-top:16px;max-width:80ch;font-size:13px;font-weight:300;line-height:1.8;color:rgba(245,245,245,.45)"><strong style="font-weight:500;color:rgba(245,245,245,.7)">Portfolio reconstruction:</strong> This screen is recreated for portfolio presentation. Production screens and sensitive client information are not shown.</figcaption>
+    </figure>
+
+    <div style="display:flex;flex-direction:column;gap:clamp(36px,6vw,90px);align-items:start">
+      <div data-reveal="1">
+        <h3 style="margin:0 0 22px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">The administration panel includes</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 24px;font-size:15px;font-weight:300;line-height:1.6;color:rgba(245,245,245,.62)">
+          <span>Medication details</span>
+          <span>Frequency</span>
+          <span>Route / administration information</span>
+          <span>Pharmacist comments</span>
+          <span>Additional instructions</span>
+          <span>Administered by</span>
+          <span>Documented by</span>
+          <span>Administration status</span>
+          <span>Administration date and time</span>
+        </div>
+      </div>
+      <div data-reveal="1">
+        <p style="margin:0 0 14px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#3B82F6">10</p>
+        <h3 style="margin:0 0 20px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Controlled substances and accountability</h3>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Controlled substances needed a different level of verification. The person administering the medication and the person verifying it must be different users.</p>
+        <p style="margin:0 0 18px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The workflow captures:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px">
+          <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.75);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:9px 14px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Administered by</span>
+          <span style="color:rgba(245,245,245,.3)">→</span>
+          <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.75);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:9px 14px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Amount wasted</span>
+          <span style="color:rgba(245,245,245,.3)">→</span>
+          <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.75);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:9px 14px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Verified by</span>
+          <span style="color:rgba(245,245,245,.3)">→</span>
+          <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.75);border:1px solid rgba(245,245,245,.14);border-radius:3px;padding:9px 14px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Verification</span>
+        </div>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The verifier confirms the transaction using their credentials.</p>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This was designed as a separate part of the administration flow rather than making every medication card carry all of these fields.</p>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">That kept the normal medication workflow simpler while still supporting the additional controlled-substance process.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="system" data-screen-label="System" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#818CF8">11 — System effects</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">One action, multiple system effects</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(40px,6vh,64px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">One of the most important things I learned from this project was that an action in MAR does not stay inside MAR.</p>
+
+    <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(30px,5vw,72px);margin-bottom:clamp(56px,8vh,96px)">
+      <div>
+        <p style="margin:0 0 18px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,245,245,.45)">For example</p>
+        <p style="margin:0 0 18px;display:inline-block;font-size:15px;font-weight:500;color:#060608;background:linear-gradient(100deg,#818CF8,#38BDF8);border-radius:3px;padding:12px 18px">Medication administered</p>
+        <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09);border-left:2px solid #818CF8">
+          <p style="margin:0;background:#0B0B10;padding:14px 18px;font-size:15px;font-weight:300;color:rgba(245,245,245,.68)">→ Administration record is saved</p>
+          <p style="margin:0;background:#0B0B10;padding:14px 18px;font-size:15px;font-weight:300;color:rgba(245,245,245,.68)">→ Billing can be triggered</p>
+          <p style="margin:0;background:#0B0B10;padding:14px 18px;font-size:15px;font-weight:300;color:rgba(245,245,245,.68)">→ Inventory can be reduced</p>
+          <p style="margin:0;background:#0B0B10;padding:14px 18px;font-size:15px;font-weight:300;color:rgba(245,245,245,.68)">→ Medication history is updated</p>
+          <p style="margin:0;background:#0B0B10;padding:14px 18px;font-size:15px;font-weight:300;color:rgba(245,245,245,.68)">→ Provider can review the administration record</p>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">If the pharmacy rejects a medication, the nurse should not be left with an unclear medication state. The provider may need to modify the prescription and send it again.</p>
+        <p style="margin:0 0 20px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This is why MAR needed to be available from the:</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px">
+          <span style="font-size:15px;font-weight:400;color:#A5B4FC;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:3px;padding:11px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">ED Tracker Board</span>
+          <span style="color:rgba(245,245,245,.3)">→</span>
+          <span style="font-size:15px;font-weight:400;color:#A5B4FC;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:3px;padding:11px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Inpatient Board</span>
+          <span style="color:rgba(245,245,245,.3)">→</span>
+          <span style="font-size:15px;font-weight:400;color:#A5B4FC;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);border-radius:3px;padding:11px 16px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">OR Board</span>
+        </div>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The provider and care team need access to the patient's medication administration record across these workflows.</p>
+      </div>
+    </div>
+
+    <div data-reveal="1" style="padding-top:clamp(40px,6vh,64px);border-top:1px solid rgba(245,245,245,.09)">
+      <p style="margin:0 0 18px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#818CF8">12</p>
+      <h3 style="margin:0 0 22px;font-size:clamp(20px,2.2vw,28px);font-weight:600;line-height:1.15;letter-spacing:-.02em;color:#F5F5F5">Designing for a connected EHR</h3>
+      <p style="margin:0 0 30px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The hardest part of this project was not designing one screen. Every decision affected another part of the system. For example:</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:30px">
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Medication ordering affects MAR.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Pharmacy approval affects whether a medication can move forward.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">MAR administration affects billing.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Administration affects inventory.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Medication status affects tracker-board visibility.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Administration history supports provider review.</p>
+        <p style="margin:0;background:#0B0B10;padding:20px;font-size:15px;font-weight:300;line-height:1.7;color:rgba(245,245,245,.65)">Controlled-substance verification adds another user and permission step.</p>
+      </div>
+      <p style="margin:0 0 12px;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">This made system knowledge very important.</p>
+      <p style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">For this project, understanding how BlueEHR works as a whole was just as important as designing the individual MAR screen.</p>
+    </div>
+  </div>
+</section>
+
+<section id="process" data-screen-label="Process" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08)">
+  <div style="max-width:820px;margin:0 auto;display:flex;flex-direction:column;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:clamp(44px,6vw,96px);align-items:start">
+    <div data-reveal="1">
+      <p style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#F59E0B">13 — Exploration</p>
+      <h2 style="margin:0 0 28px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.1;letter-spacing:-.025em">What I explored</h2>
+      <p style="margin:0 0 20px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Before settling on the final interaction model, I explored:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px">
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">List-based medication layouts</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Tab-based organization</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Existing BlueEHR calendar patterns</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Existing product patterns</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Client/UAT scenarios</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">BA suggestions</span>
+        <span style="font-size:13px;font-weight:400;color:rgba(245,245,245,.65);border:1px solid rgba(245,245,245,.12);border-radius:3px;padding:8px 13px;white-space:nowrap;flex-shrink:0;max-width:100%;overflow:hidden;text-overflow:ellipsis">Client feedback</span>
+      </div>
+      <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The list approach was useful as a starting point, but it did not communicate medication timing strongly enough.</p>
+      <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The timeline became the stronger structure because it connected the medication directly to its scheduled time.</p>
+    </div>
+    <div data-reveal="1">
+      <p style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#F59E0B">14 — Delivery</p>
+      <h2 style="margin:0 0 28px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.1;letter-spacing:-.025em">Review and implementation</h2>
+      <p style="margin:0 0 18px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">My review process included:</p>
+      <p style="margin:0 0 20px;font-size:15px;font-weight:500;line-height:1.8;color:#F5F5F5">UX self-review → Manager → BA → Developer feasibility → Stakeholder → Client</p>
+      <p style="margin:0 0 20px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">Not every feature went through a separate stakeholder review. After the BA was aligned with the approach, the design was demonstrated to stakeholders and then submitted to the client as required.</p>
+      <p style="margin:0 0 16px;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">After the design stage, I continued to support the implementation through:</p>
+      <div style="display:flex;flex-direction:column;gap:1px;background:rgba(245,245,245,.09);margin-bottom:22px">
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">Developer feasibility discussions</p>
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">Developer questions and clarification</p>
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">BA demos</p>
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">Stakeholder demos</p>
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">Client submission</p>
+        <p style="margin:0;background:#060608;padding:12px 0;font-size:15px;font-weight:300;color:rgba(245,245,245,.65)">Implementation review</p>
+      </div>
+      <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">The goal was not only to make the Figma design work, but to make sure the implemented workflow matched the intended behavior.</p>
+    </div>
+  </div>
+</section>
+
+<section id="outcome" data-screen-label="Outcome" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);background:#08080B">
+  <div style="max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#38BDF8">15 — Outcome</p>
+    <h2 data-reveal="1" style="margin:0 0 clamp(40px,6vh,64px);font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Outcome</h2>
+    <p data-reveal="1" style="margin:0 0 22px;max-width:60ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.4;letter-spacing:-.02em;color:#F5F5F5">The MAR framework was first designed for the Emergency Department and later extended to support Inpatient workflows.</p>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.62)">It is now connected to <strong style="font-weight:600;color:#38BDF8">ED + IP + OR tracker-board workflows</strong> and is live at Hospital Metropolitano.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 26px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">The design established a structured way to</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(44px,6vh,72px)">
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">View medication schedules</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Understand medication timing</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Identify due and overdue medications</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Keep PRN and Continuous medications accessible</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Document administration</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Support controlled-substance verification</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Review administration history</p>
+      <p style="margin:0;background:#0B0B10;padding:20px 22px;font-size:15px;font-weight:300;color:rgba(245,245,245,.7)">Connect medication administration with the wider EHR workflow</p>
+    </div>
+
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.55)">There is no reliable quantitative metric available for this portfolio case study, so I am not claiming a percentage improvement in efficiency or error reduction.</p>
+
+    <div data-reveal="1" style="padding:clamp(28px,3.4vw,44px);border-left:2px solid #38BDF8;background:linear-gradient(100deg,rgba(56,189,248,.1),rgba(56,189,248,0))">
+      <p style="margin:0 0 12px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#38BDF8">Core UX contribution</p>
+      <p style="margin:0;max-width:74ch;font-size:15px;font-weight:300;line-height:1.7;color:#F5F5F5">Translated a complex medication-administration workflow into a time-based interaction model with clear attention hierarchy, accessible medication states, and an administration workflow that fits into the wider EHR system.</p>
+    </div>
+  </div>
+</section>
+
+<section id="reflection" data-screen-label="Reflection" style="position:relative;padding:clamp(70px,11vh,150px) clamp(20px,4vw,56px);border-top:1px solid rgba(245,245,245,.08);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(85% 60% at 50% 110%,rgba(59,130,246,.16),transparent 62%)"></div>
+  <div style="position:relative;max-width:820px;margin:0 auto">
+    <p data-reveal="1" style="margin:0 0 22px;font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#A78BFA">16 — Reflection</p>
+    <h2 data-reveal="1" style="margin:0 0 34px;font-size:clamp(28px,3.6vw,48px);font-weight:600;line-height:1.05;letter-spacing:-.03em">Reflection</h2>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.75;color:rgba(245,245,245,.72)">The hardest part of MAR was not designing the medication card. It was managing the <strong style="font-weight:600;color:#F5F5F5">different levels of attention, behavior, and system impact</strong> without making the screen difficult to use.</p>
+
+    <p data-reveal="1" style="margin:0 0 20px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,245,245,.45)">The key lesson for me was</p>
+    <p data-reveal="1" style="margin:0 0 clamp(50px,7vh,84px);max-width:52ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.35;letter-spacing:-.025em;background:linear-gradient(96deg,#F5F5F5,#7DD3FC);-webkit-background-clip:text;background-clip:text;color:transparent">In a clinical product, simplifying the interface does not always mean removing information. Sometimes it means deciding what the user should notice first.</p>
+
+    <p data-reveal="1" style="margin:0 0 20px;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(245,245,245,.45)">The project also reinforced another lesson</p>
+    <p data-reveal="1" style="margin:0 0 30px;max-width:52ch;font-size:clamp(18px,2vw,24px);font-weight:300;line-height:1.35;letter-spacing:-.025em;background:linear-gradient(96deg,#F5F5F5,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent">A good screen can still fail if it does not fit the larger system.</p>
+    <p data-reveal="1" style="margin:0 0 clamp(60px,9vh,110px);max-width:74ch;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">For MAR, every design decision had an effect somewhere else in the EHR. Understanding the full workflow helped me make those decisions with more confidence.</p>
+
+    <h3 data-reveal="1" style="margin:0 0 28px;font-size:clamp(18px,1.7vw,22px);font-weight:500;letter-spacing:-.015em;color:#F5F5F5">Related Case Studies</h3>
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1px;background:rgba(245,245,245,.09);margin-bottom:clamp(50px,7vh,84px)">
+      <a href="ED + IP Patient Flow.dc.html" style="display:block;background:#09090C;padding:clamp(24px,3vw,36px);color:inherit;transition:background .4s ease" style-hover="background:#0C1018">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px">
+          <h4 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#F5F5F5">ED + IP Tracker Boards</h4>
+          <span style="font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#38BDF8;white-space:nowrap">Read →</span>
+        </div>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Designing patient flow across Emergency and Inpatient care.</p>
+      </a>
+      <div style="background:#09090C;padding:clamp(24px,3vw,36px)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px">
+          <h4 style="margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em;color:#F5F5F5">Payment Manager</h4>
+          <span style="font-size:9px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,245,245,.4);border:1px solid rgba(245,245,245,.14);border-radius:999px;padding:5px 11px">Coming soon</span>
+        </div>
+        <p style="margin:0;font-size:15px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.6)">Revenue cycle coordination — managing provider billing, insurance claims, and financial operations at scale.</p>
+      </div>
+    </div>
+
+    <div data-reveal="1" style="padding:clamp(24px,3vw,36px);border:1px solid rgba(245,245,245,.1);border-radius:4px;background:rgba(245,245,245,.02);margin-bottom:clamp(50px,7vh,84px)">
+      <p style="margin:0;max-width:86ch;font-size:13px;font-weight:300;line-height:1.85;color:rgba(245,245,245,.5)"><strong style="font-weight:600;color:rgba(245,245,245,.75)">Portfolio reconstruction:</strong> These screens are recreated for portfolio presentation. Production screens and sensitive client information have been changed or omitted to protect confidentiality and privacy.</p>
+    </div>
+
+    <a href="Akhil Ashokan - Portfolio.dc.html" style="display:inline-flex;align-items:center;gap:12px;padding:16px 30px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#060608;background:linear-gradient(100deg,#3B82F6,#38BDF8);transition:box-shadow .4s ease" style-hover="box-shadow:0 0 0 1px rgba(56,189,248,.5),0 12px 40px rgba(59,130,246,.3);color:#060608"><span>←</span> Back to portfolio</a>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.progressBar = React.createRef();
+  }
+  renderVals() { return { progressBar: this.progressBar }; }
+  componentDidMount() {
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.setupReveals();
+    this.setupScroll();
+  }
+  componentWillUnmount() {
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._io) this._io.disconnect();
+  }
+  root() { return this.progressBar.current ? this.progressBar.current.getRootNode() : document; }
+  setupReveals() {
+    const nodes = Array.from(this.root().querySelectorAll('[data-reveal]'));
+    if (!nodes.length || this.reduced || !('IntersectionObserver' in window)) return;
+    const vh = window.innerHeight;
+    nodes.forEach((n) => {
+      if (n.getBoundingClientRect().top < vh * 0.92) return;
+      n.style.opacity = '0';
+      n.style.transform = 'translateY(22px)';
+      n.style.transition = 'opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1)';
+    });
+    this._io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.style.opacity = '1';
+        en.target.style.transform = 'translateY(0)';
+        this._io.unobserve(en.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
+    nodes.forEach((n) => this._io.observe(n));
+    setTimeout(() => nodes.forEach((n) => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; }), 4000);
+  }
+  setupScroll() {
+    const bar = this.progressBar.current;
+    const root = this.root();
+    const links = Array.from(root.querySelectorAll('[data-nav]'));
+    const ids = links.map((l) => l.getAttribute('data-nav'));
+    const sections = Array.from(root.querySelectorAll('section[id]'));
+    this._onScroll = () => {
+      if (bar) {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0).toFixed(2) + '%';
+      }
+      let cur = ids[0];
+      sections.forEach((s) => { if (s.getBoundingClientRect().top <= 180 && ids.includes(s.id)) cur = s.id; });
+      links.forEach((l) => {
+        const on = l.getAttribute('data-nav') === cur;
+        l.style.color = on ? '#F5F5F5' : 'rgba(245,245,245,.45)';
+        l.style.borderBottomColor = on ? '#38BDF8' : 'transparent';
+        l.style.fontWeight = on ? '600' : '500';
+      });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onScroll();
+  }
+}
+
+</script>
+</body>
+</html>
